@@ -26,7 +26,8 @@
     var n = 0, d = 0; S.modules.forEach(function (m) { n += m.lessons.length; d += done(m); });
     return n ? Math.round(100 * d / n) : 0;
   }
-  function pdfUrl(m, f) { return "pdfs/" + m.folder + "/" + encodeURIComponent(f); }
+  var DRIVE = {"struct-c":"1XYdLTJeD6VGIYq-BRvmSgX2u1N45Y8Fc",proba:"1BWKHzCPVt6U6kPvQOO3YXxJMWiSJkdNp",web2:"1rKOzYOyjaaIjE1wnOo4amyrJ0IqAqSlz",ro:"1Jnms4Qp59ife_Wm0sCHayJX6KLzIE6IF",uml:"1zXvsYLVooThxa1fGqzCqbSosSLN1lF13",se:"1rWZ13GhRracw2kXiGXtULvOgeItU1zq7"};
+  function pdfUrl(m, f) { return "https://drive.google.com/drive/folders/" + DRIVE[m.id]; }
   function allTerms() {
     var out = []; S.modules.forEach(function (m) { (m.terms || []).forEach(function (t) { out.push({ t: t.t, d: t.d, m: m }); }); });
     return out.sort(function (a, b) { return norm(a.t).localeCompare(norm(b.t)); });
@@ -118,7 +119,7 @@
     var d = st.lessons[m.id] || {};
     return m.lessons.map(function (l, i) {
       var pdfs = (l.pdf || []).map(function (f) {
-        return '<button class="btn small ghost" data-pdf="' + esc(pdfUrl(m, f)) + '" data-title="' + esc(f) + '">📄 ' + esc(f.replace(/\.pdf$/i, "")) + "</button>";
+        return '<a class="btn small ghost" target="_blank" rel="noopener" href="' + esc(pdfUrl(m, f)) + '">📄 ' + esc(f.replace(/\.pdf$/i, "")) + " ↗</a>";
       }).join("");
       return '<details class="lesson' + (d[i] ? " done" : "") + '" id="l' + i + '" data-i="' + i + '"><summary><span class="num">' + (d[i] ? "✔" : i + 1) + "</span>" + esc(l.title) + '<span class="chev">›</span></summary><div class="body">' +
         '<label class="learned"><input type="checkbox" data-learn="' + i + '"' + (d[i] ? " checked" : "") + '> J\'ai appris cette leçon</label>' +
@@ -126,8 +127,8 @@
     }).join("");
   }
   function tabDocs(m) {
-    return '<p class="lead">Clique sur « Lire » pour ouvrir le PDF dans la page, ou sur « Télécharger ».</p><div class="docs">' + m.docs.map(function (dc) {
-      return '<div class="doc"><span class="k">' + esc(dc.kind) + "</span><strong>" + esc(dc.title) + '</strong><div class="row"><button class="btn small" data-pdf="' + esc(pdfUrl(m, dc.file)) + '" data-title="' + esc(dc.title) + '">Lire</button><a class="btn small ghost" download href="' + esc(pdfUrl(m, dc.file)) + '">Télécharger</a></div></div>';
+    return '<p class="lead">Les PDF sont dans le dossier Google Drive de la matière (cherche le nom du fichier).</p><div class="docs">' + m.docs.map(function (dc) {
+      return '<div class="doc"><span class="k">' + esc(dc.kind) + "</span><strong>" + esc(dc.title) + '</strong><div class="row"><a class="btn small" target="_blank" rel="noopener" href="' + esc(pdfUrl(m, dc.file)) + '">Ouvrir sur Drive ↗</a></div></div>';
     }).join("") + "</div>";
   }
   var quizState = {};
