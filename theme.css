@@ -84,3 +84,9 @@ details.deep>summary::before{content:"// "}
 .splash .term .cur{display:inline-block;width:8px;height:15px;background:#39ff88;vertical-align:-2px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){#rain{display:none}}
+
+/* explainer reels */
+.reel{margin:6px auto 14px;max-width:300px;text-align:center}
+.reel video{width:100%;aspect-ratio:9/16;max-height:72vh;background:#000;border:1px solid var(--accent);border-radius:6px;box-shadow:0 0 22px rgba(57,255,136,.28);image-rendering:pixelated}
+.reel figcaption{margin-top:6px;font-size:12px;color:var(--muted)}
+.vbadge{font-size:11px;padding:1px 6px;border:1px solid var(--accent);border-radius:3px;color:var(--accent);margin-left:6px;font-weight:600}
