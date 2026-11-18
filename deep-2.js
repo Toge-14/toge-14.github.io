@@ -452,3 +452,136 @@ P(S=1) = 1 − 1/12 − 6/12   = 5/12</code></pre>
 <li>Encadre le résultat final ; une fraction simplifiée est préférable à un décimal approché.</li>
 </ul>`,
   videos: [{ t: "Dénombrement : combinaisons et tirages", q: "probabilités dénombrement combinaisons tirage urne exercice corrigé" }, { t: "Loi de probabilité d'une somme de variables", q: "loi de la somme de deux variables aléatoires discrètes exercice corrigé" }] }]);
+
+window.S3DEEP["ro"] = (window.S3DEEP["ro"] || []).concat([
+{ html: `
+<h3>Un graphe, c'est juste des données</h3>
+<p>Imagine un réseau de villes : les villes sont les <b>sommets</b>, les routes à sens unique sont les <b>arcs</b>. Le graphe G = (X, U) avec X = {1,2,3,4} et U = {(1,2), (2,3), (3,1), (3,4)} se code en Python en trois lignes :</p>
+<pre><code>X = [1, 2, 3, 4]
+U = [(1,2), (2,3), (3,1), (3,4)]
+
+succ = {x: [y for (a,y) in U if a == x] for x in X}   # Γ(x)
+pred = {x: [a for (a,y) in U if y == x] for x in X}   # Γ⁻¹(x)
+print(succ[3])   # [1, 4]   successeurs de 3
+print(pred[3])   # [2]      prédécesseurs de 3</code></pre>
+<h3>Calculer les degrés</h3>
+<pre><code>d_plus  = {x: len(succ[x]) for x in X}   # degré sortant
+d_moins = {x: len(pred[x]) for x in X}   # degré entrant
+d       = {x: d_plus[x] + d_moins[x] for x in X}
+
+print(sum(d_plus.values()), len(U))      # 4 4  → Σ d⁺ = |U|
+print(sum(d.values()), 2*len(U))         # 8 8  → Σ d = 2|U|</code></pre>
+<p>Tu vois la preuve du cours en action : chaque arc est compté une fois dans les degrés sortants et une fois dans les degrés entrants.</p>
+<h3>Tester les propriétés</h3>
+<pre><code>symetrique = all((y,x) in U for (x,y) in U)
+reflexif   = all((x,x) in U for x in X)
+irreflexif = all(x != y for (x,y) in U)
+print(symetrique, reflexif)   # False False</code></pre>
+<p>Ici <code>(1,2)</code> est dans U mais pas <code>(2,1)</code> : le graphe n'est pas symétrique. Un graphe fortement antisymétrique ne peut pas avoir de boucle car une boucle (x,x) violerait « (x,x) ∈ U ⇒ (x,x) ∉ U » : c'est l'exercice 1 de la série 2.</p>
+<h3>Preuve de l'exercice 5 (degrés impairs)</h3>
+<p>Σ d(x) = 2|U| est un nombre pair. Les degrés pairs contribuent un nombre pair ; le reste de la somme vient donc des degrés impairs et doit aussi être pair. Une somme de k nombres impairs est paire seulement si k est pair.</p>`,
+  videos: [{ t: "Théorie des graphes : introduction et vocabulaire", q: "théorie des graphes introduction sommets arcs degré vocabulaire cours" }, { t: "Lemme des poignées (somme des degrés)", q: "théorie des graphes somme des degrés nombre de sommets de degré impair" }] },
+
+{ html: `
+<h3>Chaîne ou chemin ? Un test rapide</h3>
+<p>Suis la suite d'arcs avec ton doigt. Si tu es obligé de <b>remonter une flèche à l'envers</b> à un moment, c'est une <b>chaîne</b>. Si tu suis toujours le sens des flèches, c'est un <b>chemin</b>. Tout chemin est une chaîne, mais pas l'inverse.</p>
+<h3>Simple, élémentaire, cycle, circuit</h3>
+<pre><code>Graphe : a=(1,2)  b=(2,3)  c=(3,1)  d=(3,4)
+
+Chemin (a, b, d)      : 1→2→3→4   simple (arcs tous différents), élémentaire (sommets tous différents)
+Chemin (a, b, c)      : 1→2→3→1   circuit élémentaire (on revient au départ)
+Chemin (a, b, c, a)   : 1→2→3→1→2 pas simple : l'arc a est repris</code></pre>
+<h3>Retrouver les chemins de longueur k avec du code</h3>
+<pre><code>def chemins(U, depart, k):
+    if k == 0:
+        return [[depart]]
+    res = []
+    for (x, y) in U:
+        if x == depart:
+            for suite in chemins(U, y, k-1):
+                res.append([depart] + suite)
+    return res
+
+print(chemins(U, 1, 3))   # [[1, 2, 3, 1], [1, 2, 3, 4]]</code></pre>
+<p>La fonction essaie chaque arc qui part du sommet courant, puis recommence sur ce qui reste à parcourir. C'est exactement ce que fait la puissance de matrice : <code>X³[1][1]</code> et <code>X³[1][4]</code> valent 1 ici, car il y a un chemin de longueur 3 de 1 à 1 et un de 1 à 4.</p>
+<div class="call"><b class="t">Retenir</b>Longueur = nombre d'arcs, pas de sommets. Le chemin 1→2→3→4 a longueur 3.</div>`,
+  videos: [{ t: "Chaînes, chemins, cycles et circuits", q: "théorie des graphes chaîne chemin cycle circuit différence simple élémentaire" }] },
+
+{ html: `
+<h3>Même graphe, trois façons de le stocker</h3>
+<p>Graphe orienté : arcs u1=(1,2), u2=(2,3), u3=(3,1), u4=(3,4).</p>
+<pre><code>Matrice d'adjacence X          Matrice d'incidence A (colonnes u1..u4)
+    1 2 3 4                         u1  u2  u3  u4
+1 [ 0 1 0 0 ]                  1 [ +1   0  -1   0 ]
+2 [ 0 0 1 0 ]                  2 [ -1  +1   0   0 ]
+3 [ 1 0 0 1 ]                  3 [  0  -1  +1  +1 ]
+4 [ 0 0 0 0 ]                  4 [  0   0   0  -1 ]
+
+Listes d'adjacence
+1 : 2
+2 : 3
+3 : 1, 4
+4 : (vide)</code></pre>
+<h3>Construire la matrice d'adjacence en code</h3>
+<pre><code>n = 4
+X = [[0]*n for _ in range(n)]       # matrice n×n de zéros
+for (i, j) in [(1,2), (2,3), (3,1), (3,4)]:
+    X[i-1][j-1] = 1                 # -1 car les listes Python commencent à 0
+for ligne in X: print(ligne)</code></pre>
+<h3>Lire la matrice d'incidence (exercice 7)</h3>
+<ul>
+<li><b>Degré sortant de la ligne i</b> : nombre de +1. <b>Degré entrant</b> : nombre de −1.</li>
+<li>Pour retrouver l'arc d'une colonne : le +1 donne son origine, le −1 son extrémité. Exemple colonne u1 de l'exercice : +1 en a, −1 en c, donc u1 = (a, c).</li>
+<li>Vérification : chaque colonne doit contenir un seul +1 et un seul −1.</li>
+</ul>
+<h3>Puissance de la matrice : compter les chemins</h3>
+<pre><code>def mult(A, B):
+    n = len(A)
+    return [[sum(A[i][k]*B[k][j] for k in range(n)) for j in range(n)] for i in range(n)]
+
+X2 = mult(X, X)
+X3 = mult(X2, X)
+print(X3[0][0])   # nombre de chemins de longueur 3 de 1 à 1 → 1</code></pre>
+<p>La somme parcourt tous les sommets intermédiaires k : un chemin de i à j de longueur 2 passe par un k avec un arc i→k puis k→j. C'est pourquoi le produit de matrices compte les chemins.</p>`,
+  videos: [{ t: "Matrice d'adjacence et d'incidence", q: "graphe matrice d'adjacence matrice d'incidence liste d'adjacence explication" }, { t: "Puissances de la matrice d'adjacence", q: "matrice d'adjacence puissance nombre de chemins de longueur k graphe" }] },
+
+{ html: `
+<h3>Accessibilité : le parcours en largeur</h3>
+<p>Pour savoir quels sommets sont atteignables depuis S, on explore couche par couche :</p>
+<pre><code>def accessibles(succ, S):
+    vus = {S}              # sommets déjà trouvés
+    a_traiter = [S]        # file des sommets à explorer
+    while a_traiter:
+        x = a_traiter.pop(0)
+        for y in succ[x]:
+            if y not in vus:
+                vus.add(y)
+                a_traiter.append(y)
+    return vus</code></pre>
+<h3>Composante fortement connexe de S</h3>
+<pre><code>def cfc(succ, pred, S):
+    Xplus  = accessibles(succ, S)   # ceux que S peut atteindre
+    Xmoins = accessibles(pred, S)   # ceux qui peuvent atteindre S
+    return Xplus & Xmoins           # intersection
+
+succ = {1:[2], 2:[3], 3:[1,4], 4:[]}
+pred = {1:[3], 2:[1], 3:[2], 4:[3]}
+print(cfc(succ, pred, 1))   # {1, 2, 3}
+print(cfc(succ, pred, 4))   # {4}</code></pre>
+<p>Pour 1 : atteignable = {1,2,3,4}, peut atteindre 1 = {1,2,3} (via 3→1, 2→3, 1→2) ; l'intersection est {1,2,3}. Le sommet 4 est atteint mais ne peut pas revenir, il forme sa propre CFC.</p>
+<h3>Le graphe réduit de cet exemple</h3>
+<pre><code>CFC : C1 = {1,2,3}   C2 = {4}
+Arc de C1 vers C2 car (3,4) ∈ U
+Graphe réduit : C1 → C2   (aucun circuit)</code></pre>
+<h3>Toutes les CFC</h3>
+<pre><code>reste = set(succ)
+comps = []
+while reste:
+    s = next(iter(reste))
+    c = cfc(succ, pred, s)
+    comps.append(c)
+    reste -= c</code></pre>
+<p>C'est l'algorithme du cours (figure 2.19) : on choisit un sommet, on calcule sa CFC, on la retire, et on recommence tant qu'il reste des sommets.</p>
+<div class="call"><b class="t">Connexe ou fortement connexe ?</b>Le graphe ci-dessus est <b>connexe</b> (on peut relier deux sommets en ignorant le sens), mais <b>pas fortement connexe</b> : on ne peut pas aller de 4 à 1.</div>`,
+  videos: [{ t: "Composantes fortement connexes expliquées", q: "composantes fortement connexes graphe orienté algorithme explication" }, { t: "Parcours en largeur (BFS)", q: "parcours en largeur BFS graphe algorithme expliqué" }] }
+]);

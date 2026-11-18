@@ -281,10 +281,11 @@
     var seen = false; try { seen = sessionStorage.getItem("s3splash"); } catch (e) {}
     if (seen || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     var sp = document.createElement("div"); sp.className = "splash";
-    sp.innerHTML = '<div><div class="tile">S3</div><div class="word">' + "Guide".split("").map(function (c, i) { return '<span style="--i:' + i + '">' + c + "</span>"; }).join("") + "</div><small>cours · quiz · PDF</small><div class=\"load\"><i></i></div></div>";
+    var L = ['<span class="dim">$</span> <b>boot</b> s3-guide --filiere IA --semestre 3', '<span class="ok">[ ok ]</span> chargement des modules ........ 6/6', '<span class="ok">[ ok ]</span> cours · quiz · glossaire · PDF', '<span class="ok">[ ok ]</span> indexation de la recherche', '<span class="dim">$</span> <b>ready</b> <span class="cur"></span>'];
+    sp.innerHTML = '<div class="term">' + L.map(function (l, i) { return '<div style="--i:' + i + '">' + l + "</div>"; }).join("") + "</div>";
     document.body.appendChild(sp);
     function out() { sp.classList.add("out"); setTimeout(function () { sp.remove(); }, 600); try { sessionStorage.setItem("s3splash", "1"); } catch (e) {} }
-    sp.onclick = out; setTimeout(out, 1500);
+    sp.onclick = out; setTimeout(out, 1400);
   })();
 
   route_();
