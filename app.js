@@ -111,8 +111,8 @@
     var vids = (D.videos || []).map(function (v) {
       return '<a class="vid" target="_blank" rel="noopener" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(v.q) + '"><span>▶</span><b>' + esc(v.t) + '</b><small>Rechercher sur YouTube</small></a>';
     }).join("");
-    var vid = D.video ? '<figure class="reel"><video controls playsinline preload="metadata" src="' + D.video.src + '"></video><figcaption>🎬 ' + esc(D.video.title) + " · 25 s · avec son</figcaption></figure>" : "";
-    return '<details class="deep"><summary>🔍 Expliquer en détail' + (D.video ? ' <span class="vbadge">🎬 vidéo</span>' : "") + '<span class="chev">›</span></summary><div class="deepbody">' + vid + '<div class="prose">' + D.html + "</div>" +
+    var vid = (D.videoList || (D.video ? [D.video] : [])).map(function (v) { return '<figure class="reel"><video controls playsinline preload="metadata" src="' + v.src + '"></video><figcaption>🎬 ' + esc(v.title) + " · ~25 s · avec son</figcaption></figure>"; }).join("");
+    return '<details class="deep"><summary>🔍 Expliquer en détail' + (D.video ? ' <span class="vbadge">🎬 ' + (D.videoList && D.videoList.length > 1 ? D.videoList.length + ' vidéos' : 'vidéo') + '</span>' : "") + '<span class="chev">›</span></summary><div class="deepbody">' + vid + '<div class="prose">' + D.html + "</div>" +
       (vids ? '<div class="vids"><b>🎬 Vidéos pour comprendre</b>' + vids + "</div>" : "") + "</div></details>";
   }
   function tabLessons(m) {
