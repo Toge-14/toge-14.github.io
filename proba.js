@@ -15,7 +15,8 @@ S3.addModule({
     { kind: "Annale", title: "Examen — Session normale 2024/2025", file: "Exams__Normal2425.pdf" },
     { kind: "Annale", title: "Examen — Rattrapage 2024/2025", file: "Exams__Ratt2425.pdf" },
     { kind: "Annale", title: "Examen — Session normale 2025/2026 (avec correction)", file: "Exams__Normal2526.pdf" },
-    { kind: "Annale", title: "Examen — Rattrapage 2025/2026", file: "Exams__Ratt2526.pdf" }
+    { kind: "Annale", title: "Examen — Rattrapage 2025/2026", file: "Exams__Ratt2526.pdf" },
+    { kind: "TD", title: "Série 3 — Couples de variables aléatoires discrètes", file: "S-rie3.pdf" }
   ],
   lessons: [
     { title: "Espaces probabilisés, dénombrement, conditionnement", pdf: ["ProbaChap1_2_.pdf", "S-rie1_1_.pdf"], html: `
@@ -143,7 +144,11 @@ S3.addModule({
     { q: "On lance 4 fois une pièce équilibrée. Loi du nombre X de piles, espérance et variance.", a: "X ~ B(4, 1/2). P(X=k) = C(4,k)/16. E(X) = np = 2 ; V(X) = npq = 4×½×½ = 1." },
     { q: "Un appel est en retard avec probabilité 1/3, indépendamment. Loi du rang Y du premier retard et P(Y ≤ k).", a: "Y suit une loi géométrique de paramètre 1/3 : P(Y=k) = (2/3)^(k−1)·(1/3). P(Y ≤ k) = 1 − (2/3)^k. E(Y) = 3." },
     { q: "f(x) = 2x sur [0,1], 0 ailleurs. Vérifier que c'est une densité, calculer E(X) et F.", a: "∫₀¹ 2x dx = 1 donc c'est une densité. E(X) = ∫₀¹ 2x² dx = 2/3. F(x) = 0 si x &lt; 0 ; x² si 0 ≤ x ≤ 1 ; 1 si x &gt; 1." },
-    { q: "T = max(Y, Z) avec Y et Z indépendantes de même loi géométrique(1/3). Loi de T.", a: "P(T ≤ k) = (1 − (2/3)^k)². Alors P(T = k) = P(T ≤ k) − P(T ≤ k−1)." }
+    { q: "T = max(Y, Z) avec Y et Z indépendantes de même loi géométrique(1/3). Loi de T.", a: "P(T ≤ k) = (1 − (2/3)^k)². Alors P(T = k) = P(T ≤ k) − P(T ≤ k−1)." },
+    { q: "Série 3, ex. 4 : table de (X, Y) avec P(0,−1) = 1/4, P(0,1) = p + 1/8, P(1,−1) = 1/2, P(1,1) = −p + 1/8. Conditions sur p, lois marginales, covariance ?", a: "Les probabilités sont ≥ 0 : −1/8 ≤ p ≤ 1/8 (la somme vaut déjà 1). Loi de X : P(X=0) = 3/8 + p, P(X=1) = 5/8 − p, donc E[X] = 5/8 − p et Var(X) = (5/8 − p)(3/8 + p). Loi de Y : P(Y=−1) = 3/4, P(Y=1) = 1/4, donc E[Y] = −1/2, Var(Y) = 3/4. E[XY] = (1/8 − p) − 1/2 = −3/8 − p, d'où Cov(X,Y) = −1/16 − 3p/2. Corrélation nulle si p = −1/24 ; pour cette valeur les quatre cases vérifient P(x,y) = P(x)P(y), donc X et Y sont même indépendantes." },
+    { q: "Série 3, ex. 3 : n boîtes, la boîte k contient k boules numérotées de 1 à k. X = numéro de la boîte, Y = numéro de la boule. Loi de (X,Y), P(X = Y), E(Y) ?", a: "P(X = k) = 1/n et P(Y = j | X = k) = 1/k pour 1 ≤ j ≤ k, donc P(X = k, Y = j) = 1/(nk) pour 1 ≤ j ≤ k ≤ n (0 sinon). P(X = Y) = Σₖ 1/(nk) = (1/n)(1 + 1/2 + … + 1/n). Loi de Y : P(Y = j) = Σ_{k=j}^{n} 1/(nk). E(Y) = Σₖ (1/n)·(k+1)/2 = (n + 3)/4." },
+    { q: "Série 3, ex. 1 : urne avec 2 boules blanches et n − 2 rouges, n tirages sans remise. X et Y = rangs de sortie de la 1re et 2e blanche. Loi du couple ?", a: "Les positions des deux blanches forment une paire équiprobable parmi C(n,2) : P(X = i, Y = j) = 1 / C(n,2) = 2/(n(n−1)) pour 1 ≤ i < j ≤ n. Loi de Y : P(Y = j) = (j − 1) · 2/(n(n−1)) pour 2 ≤ j ≤ n (il y a j − 1 valeurs possibles de i)." },
+    { q: "Série 3, ex. 6 : le nombre de feuilles X suit une loi de Poisson(λ) ; à chaque feuille on lance une pièce (pile avec probabilité p). Loi de F (nombre de faces) ?", a: "Sachant X = k, F suit B(k, q) avec q = 1 − p. P(X = k, F = a) = e^(−λ) λ^k / k! · C(k,a) q^a p^(k−a). En sommant sur k ≥ a : P(F = a) = e^(−λq) (λq)^a / a!, donc F suit une loi de Poisson(λq), d'espérance λq. De même P suit Poisson(λp), et P(P = b, F = a) = P(P = b) P(F = a) : P et F sont indépendantes." }
   ],
   tips: [
     "Avant tout calcul, identifie la loi : binomiale (nombre de succès), géométrique (rang du 1er succès), Poisson (événements rares).",
@@ -169,6 +174,9 @@ S3.addModule({
     { t: "Densité", d: "Fonction f ≥ 0 d'intégrale 1 telle que P(a ≤ X ≤ b) = ∫ f sur [a,b]." },
     { t: "Fonction de répartition", d: "F(x) = P(X ≤ x), croissante, de limite 0 en −∞ et 1 en +∞." },
     { t: "Loi exponentielle", d: "Densité λe^(−λx) sur ℝ₊ ; sans mémoire ; E = 1/λ." },
-    { t: "Loi normale", d: "Loi en cloche N(m,σ²) ; on se ramène à N(0,1) par Z = (X−m)/σ." }
+    { t: "Loi normale", d: "Loi en cloche N(m,σ²) ; on se ramène à N(0,1) par Z = (X−m)/σ." },
+    { t: "Loi conjointe", d: "Les probabilités P(X = x, Y = y) du couple (X, Y)." },
+    { t: "Lois marginales", d: "Lois de X et de Y obtenues en sommant la loi conjointe sur l'autre variable." },
+    { t: "Covariance", d: "Cov(X,Y) = E[XY] − E[X]E[Y] ; nulle si X et Y sont indépendantes (la réciproque est fausse)." }
   ]
 });

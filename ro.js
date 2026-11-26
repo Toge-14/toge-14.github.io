@@ -6,7 +6,8 @@ S3.addModule({
     { kind: "Cours", title: "Chapitre 1 — Programmation linéaire", file: "Chapitre_1_-_Programmation_lin-aire.pdf" },
     { kind: "TD", title: "Série 1 — Programmation linéaire", file: "s-rie_1.pdf" },
     { kind: "Cours", title: "Chapitre 2 — Généralités sur les graphes", file: "Chapitre_2_Generalites_sur_les_graphes.pdf" },
-    { kind: "TD", title: "Série 2 — Théorie des graphes (partie 1)", file: "Serie_2.pdf" }
+    { kind: "TD", title: "Série 2 — Théorie des graphes (partie 1)", file: "Serie_2.pdf" },
+    { kind: "TD", title: "Série 3 — Théorie des graphes (partie 2) : arbres, Prüfer, coloration", file: "Serie_3_Graphes_partie_2.pdf" }
   ],
   lessons: [
     { title: "Modéliser un programme linéaire", pdf: ["Chapitre_1_-_Programmation_lin-aire.pdf"], html: `
@@ -118,7 +119,39 @@ S3.addModule({
 <pre><code>X+  = ensemble des sommets ACCESSIBLES depuis S
 X-  = ensemble des sommets qui PEUVENT ATTEINDRE S
 CFC(S) = X+ ∩ X-</code></pre>
-<p>Pour toutes les CFC : on prend un sommet, on calcule sa CFC, on l'enlève, et on recommence jusqu'à épuisement des sommets.</p>` }
+<p>Pour toutes les CFC : on prend un sommet, on calcule sa CFC, on l'enlève, et on recommence jusqu'à épuisement des sommets.</p>` },
+    { title: "Arbres, codage de Prüfer et coloration", pdf: ["Serie_3_Graphes_partie_2.pdf"], html: `
+<div class="call"><b class="t">Source</b>Cette leçon est rédigée à partir de la <b>Série 3</b> (théorie des graphes, partie 2). Le chapitre de cours correspondant n'est pas dans le Drive : ce qui suit rappelle les résultats classiques utilisés par la série.</div>
+<h3>Arbre</h3>
+<ul>
+<li>Un <b>arbre</b> est un graphe <b>connexe sans cycle</b>. Pour n sommets, il a exactement <b>n − 1 arêtes</b>.</li>
+<li>Un arbre (n ≥ 2) possède au moins <b>2 feuilles</b> (sommets de degré 1).</li>
+<li>Il n'est <b>jamais régulier</b> dès que n ≥ 3 : il a une feuille (degré 1) et au moins un sommet de degré ≥ 2.</li>
+<li>Formule de Cayley : il y a <b>n^(n−2)</b> arbres sur n sommets numérotés (et n^(n−1) arborescences, si on choisit en plus la racine).</li>
+</ul>
+<h3>Codage de Prüfer</h3>
+<p>Il associe à un arbre à n sommets numérotés une suite de <b>n − 2</b> nombres.</p>
+<pre><code>Répéter n-2 fois :
+   1) prendre la feuille de plus petit numéro
+   2) écrire le numéro de son voisin dans la suite
+   3) supprimer cette feuille</code></pre>
+<ul>
+<li>Un sommet de degré d apparaît <b>d − 1 fois</b> dans le code : les feuilles n'y apparaissent jamais.</li>
+<li>Décodage : n = (longueur du code) + 2, et deg(x) = (nombre d'apparitions de x) + 1.</li>
+<li>Exemple : l'étoile à 100 sommets de centre 1 a pour code (1, 1, …, 1) avec <b>98</b> fois le nombre 1.</li>
+</ul>
+<h3>Coloration</h3>
+<ul>
+<li>Le <b>nombre chromatique χ(G)</b> est le plus petit nombre de couleurs pour colorier les sommets sans que deux voisins aient la même couleur.</li>
+<li>Un <b>arbre</b> (n ≥ 2) est biparti : χ = 2. On colorie selon la parité de la distance à la racine.</li>
+<li>χ(G) ≥ taille de la plus grande clique, et χ(G) ≤ Δ(G) + 1.</li>
+<li>Un <b>stable</b> est un ensemble de sommets deux à deux non adjacents ; α(G) est la taille maximale d'un stable. On a <b>χ(G) + α(G) ≤ n + 1</b>.</li>
+<li>Problème des « poissons / aquariums » (série, ex. 3) : un sommet par poisson, une arête si deux poissons ne cohabitent pas ; le nombre minimal d'aquariums est χ(G).</li>
+</ul>
+<h3>Arbre couvrant de poids minimal (ex. 15 : câbler un réseau)</h3>
+<p>Deux méthodes classiques : <b>Kruskal</b> (trier les arêtes par poids croissant et ajouter celles qui ne créent pas de cycle) et <b>Prim</b> (partir d'un sommet et ajouter à chaque étape l'arête de poids minimum qui relie l'arbre à un nouveau sommet). Les deux donnent un arbre à n − 1 arêtes de poids minimal.</p>
+<h3>Arbre binaire (ex. 14)</h3>
+<p>Dans l'énoncé : une racine de degré 2, des nœuds de degré 3 et des feuilles. Avec N sommets, F feuilles et P sommets de degré 3, on a N = F + P + 1 et la somme des degrés F + 3P + 2 = 2(N − 1). On en déduit P = F − 2, N = 2F − 1 (donc N est <b>impair</b>), F = (N + 1)/2 et P = (N − 3)/2.</p>` }
   ],
   quiz: [
     { q: "Quels sont les trois éléments d'un programme linéaire ?", o: ["Graphe, arbre, chemin", "Variables, contraintes, fonction économique", "Matrice, vecteur, scalaire", "Entrée, sortie, algorithme"], a: 1, e: "On définit les inconnues, les contraintes linéaires et la fonction à optimiser." },
@@ -137,7 +170,12 @@ CFC(S) = X+ ∩ X-</code></pre>
     { q: "Dans la matrice d'incidence d'un graphe orienté, une colonne contient…", o: ["Un seul 1", "Un +1 et un −1", "Que des 0", "Deux +1"], a: 1, e: "L'arc sort d'un sommet (+1) et arrive en un autre (−1)." },
     { q: "L'élément (i, j) de la matrice X³ représente…", o: ["Le degré de i", "Le nombre de chemins de longueur 3 de i à j", "Un arc de i à j", "La distance de i à j"], a: 1, e: "La puissance k de la matrice d'adjacence compte les chemins de longueur k." },
     { q: "Un graphe est fortement connexe si…", o: ["Il existe une chaîne entre toute paire", "Il existe un chemin de x à y et de y à x pour toute paire", "Il n'a pas de circuit", "Il est complet"], a: 1, e: "La forte connexité exige des chemins dans les deux sens." },
-    { q: "Comment obtient-on la composante fortement connexe de S ?", o: ["X⁺ ∪ X⁻", "X⁺ ∩ X⁻", "X⁺ − X⁻", "Seulement X⁺"], a: 1, e: "Sommets accessibles depuis S ET qui atteignent S." }
+    { q: "Comment obtient-on la composante fortement connexe de S ?", o: ["X⁺ ∪ X⁻", "X⁺ ∩ X⁻", "X⁺ − X⁻", "Seulement X⁺"], a: 1, e: "Sommets accessibles depuis S ET qui atteignent S." },
+    { q: "Combien d'arêtes possède un arbre à n sommets ?", o: ["n", "n − 1", "n + 1", "n(n−1)/2"], a: 1, e: "Connexe et sans cycle : exactement n − 1 arêtes." },
+    { q: "Quelle est la longueur du codage de Prüfer d'un arbre à n sommets ?", o: ["n", "n − 1", "n − 2", "n + 1"], a: 2, e: "On supprime n − 2 feuilles (il reste 2 sommets), donc le code a n − 2 termes." },
+    { q: "Combien de fois un sommet de degré d apparaît-il dans le code de Prüfer ?", o: ["d", "d − 1", "d + 1", "Jamais"], a: 1, e: "Les feuilles (d = 1) n'apparaissent pas ; un sommet de degré d apparaît d − 1 fois." },
+    { q: "Combien d'arbres existe-t-il sur n sommets numérotés (n ≥ 2) ?", o: ["n!", "2ⁿ", "n^(n−2)", "n^n"], a: 2, e: "Formule de Cayley, qui correspond à toutes les suites de n − 2 termes dans {1..n}." },
+    { q: "Quel est le nombre chromatique d'un arbre à au moins 2 sommets ?", o: ["1", "2", "3", "n"], a: 1, e: "Un arbre est biparti : deux couleurs suffisent." }
   ],
   exercises: [
     { q: "Modéliser : un atelier fabrique A (gain 30) et B (gain 20) avec 20 kg de M1/jour (A:1, B:1), 30 kg de M2 (A:3, B:1) et 7 kg de M3 (A:1).", a: "Variables : A, B ≥ 0. Max Z = 30A + 20B sous A+B ≤ 20, 3A+B ≤ 30, A ≤ 7." },
@@ -148,7 +186,13 @@ CFC(S) = X+ ∩ X-</code></pre>
     { q: "Série 2, ex. 8 : nombre d'arêtes de Kₙ (trois méthodes).", a: "1) Choix de 2 sommets parmi n : C(n,2) = n(n−1)/2. 2) Lemme des poignées : chaque sommet a degré n−1, donc 2m = n(n−1). 3) Récurrence : K_{n+1} a n arêtes de plus que Kₙ, soit 1+2+…+(n−1) = n(n−1)/2." },
     { q: "Série 2, ex. 1 : G symétrique ⇔ pour tout x, Γ(x) = Γ⁻¹(x).", a: "Symétrique : (x,y) ∈ U ⇔ (y,x) ∈ U. Or y ∈ Γ(x) ⇔ (x,y) ∈ U et y ∈ Γ⁻¹(x) ⇔ (y,x) ∈ U. Les deux ensembles sont donc égaux pour tout x. Réciproque : si Γ(x) = Γ⁻¹(x) alors (x,y) ∈ U ⇒ y ∈ Γ⁻¹(x) ⇒ (y,x) ∈ U." },
     { q: "Série 2, ex. 11 : matrice d'adjacence du graphe cycle Cₙ.", a: "x[i][j] = 1 si j = i±1 (indices modulo n), 0 sinon. Matrice symétrique, avec 1 en position (1,n) et (n,1), des 0 sur la diagonale, chaque ligne contenant exactement deux 1 (graphe 2-régulier)." },
-    { q: "Série 2, ex. 9 : les suites (1,1,3,3) et (2,2,3,3) sont-elles graphiques ?", a: "Test de Havel-Hakimi : on trie en ordre décroissant, on retire le plus grand degré d et on retranche 1 aux d degrés suivants. <b>(3,3,1,1)</b> → (2,0,0) → on retire 2 et on retranche 1 à 0 et 0 : −1, impossible, donc <b>non graphique</b>. <b>(3,3,2,2)</b> → (2,1,1) → (0,0) : toujours des degrés ≥ 0 jusqu'au bout, donc <b>graphique</b>. Condition préalable : la somme des degrés doit être paire." }
+    { q: "Série 2, ex. 9 : les suites (1,1,3,3) et (2,2,3,3) sont-elles graphiques ?", a: "Test de Havel-Hakimi : on trie en ordre décroissant, on retire le plus grand degré d et on retranche 1 aux d degrés suivants. <b>(3,3,1,1)</b> → (2,0,0) → on retire 2 et on retranche 1 à 0 et 0 : −1, impossible, donc <b>non graphique</b>. <b>(3,3,2,2)</b> → (2,1,1) → (0,0) : toujours des degrés ≥ 0 jusqu'au bout, donc <b>graphique</b>. Condition préalable : la somme des degrés doit être paire." },
+    { q: "Série 3, ex. 1 : A est la matrice d'incidence de G d'ordre 100 avec a₁ = 2⁹⁹ − 1 et aₖ = 2^(100−k). Quel est G ?", a: "Les lignes ont 99 bits, donc A est de taille 100 × 99 (100 sommets, 99 arêtes). La ligne a₁ est faite de 99 uns : le sommet 1 est incident à toutes les arêtes. Chaque ligne aₖ (k ≥ 2) a un seul 1, en colonne k − 1 : le sommet k est de degré 1. G est l'étoile K₁,₉₉ : d(1) = 99 et d(x) = 1 sinon. Son code de Prüfer est (1, 1, …, 1), 98 fois. Elle est biparti : χ = 2 (centre d'une couleur, les 99 feuilles de l'autre)." },
+    { q: "Série 3, ex. 5 : un graphe simple d'ordre n a deux sommets de même degré.", a: "Les degrés sont dans {0, …, n−1}. Un sommet de degré 0 et un sommet de degré n−1 ne peuvent pas coexister (le second est lié à tous, donc le premier ne peut pas être isolé). Les n degrés sont donc pris parmi au plus n − 1 valeurs : principe des tiroirs, deux sommets ont le même degré." },
+    { q: "Série 3, ex. 4 : montrer que χ(G) + α(G) ≤ n + 1.", a: "Soit S un stable de taille α(G). On colorie S avec une seule couleur et les n − α sommets restants avec au plus n − α couleurs distinctes. Donc χ(G) ≤ (n − α) + 1, c'est-à-dire χ + α ≤ n + 1." },
+    { q: "Série 3, ex. 10 : un arbre à n ≥ 3 sommets n'est pas régulier.", a: "Un arbre a au moins une feuille (degré 1). S'il était régulier, tous les sommets auraient le degré 1, donc le graphe serait un ensemble de paires reliées : connexe seulement pour n = 2. Pour n ≥ 3, il existe un sommet de degré ≥ 2, donc l'arbre n'est pas régulier." },
+    { q: "Série 3, ex. 9 : combien d'arbres à 4 sommets numérotés, et quels codes de Prüfer ?", a: "4^(4−2) = 16 arbres. Les codes sont tous les couples (a, b) de {1,2,3,4}² : 4 codes (c, c) pour les 4 étoiles de centre c, et 12 codes (a, b) avec a ≠ b pour les 12 chaînes." },
+    { q: "Série 3, ex. 14 : arbre binaire d'ordre N, F feuilles, P sommets de degré 3.", a: "Racine de degré 2 : N = F + P + 1. Somme des degrés : F + 3P + 2 = 2(N − 1) = 2(F + P), d'où P = F − 2 puis N = 2F − 1 : N est impair (≥ 3), F = (N + 1)/2 et P = (N − 3)/2." }
   ],
   tips: [
     "Pour tout exercice de graphe, commence par écrire X, U, puis la matrice d'adjacence : le reste en découle.",
@@ -179,6 +223,13 @@ CFC(S) = X+ ∩ X-</code></pre>
     { t: "Matrice d'adjacence", d: "Matrice n × n avec 1 en (i,j) s'il existe un arc de i à j." },
     { t: "Matrice d'incidence", d: "Matrice n × m avec +1 (arc sortant), −1 (arc entrant), 0 ailleurs." },
     { t: "Composante fortement connexe", d: "Classe de sommets mutuellement accessibles par des chemins." },
-    { t: "Graphe réduit", d: "Graphe dont les sommets sont les CFC, sans circuit." }
+    { t: "Graphe réduit", d: "Graphe dont les sommets sont les CFC, sans circuit." },
+    { t: "Arbre", d: "Graphe connexe sans cycle ; n sommets, n − 1 arêtes." },
+    { t: "Feuille", d: "Sommet de degré 1." },
+    { t: "Codage de Prüfer", d: "Suite de n − 2 termes qui code un arbre à n sommets numérotés." },
+    { t: "Formule de Cayley", d: "Il y a n^(n−2) arbres sur n sommets numérotés." },
+    { t: "Nombre chromatique χ(G)", d: "Nombre minimum de couleurs pour colorier les sommets sans conflit." },
+    { t: "Stable / α(G)", d: "Ensemble de sommets deux à deux non adjacents ; α(G) = taille maximale." },
+    { t: "Kruskal / Prim", d: "Deux algorithmes pour l'arbre couvrant de poids minimal." }
   ]
 });

@@ -13,7 +13,9 @@ S3.addModule({
     { kind: "Corrigé", title: "Série 1 — Solution", file: "S-rie_1_solution.pdf" },
     { kind: "TD/TP", title: "Série 2 — Variables, types, opérateurs, conditions", file: "Serie2.pdf" },
     { kind: "Corrigé", title: "Série 2 — Solution", file: "Serie2_solution.pdf" },
-    { kind: "Livre", title: "Livre PHP 8 (gros fichier)", file: "Livre_PHP-8.pdf" }
+    { kind: "Livre", title: "Livre PHP 8 (gros fichier)", file: "Livre_PHP-8.pdf" },
+    { kind: "TD", title: "Série 3 — Solution (contrôle, tableaux, fonctions)", file: "Serie3_solution.pdf" },
+    { kind: "TD", title: "Série 4 — Formulaires, fichiers, sessions, MySQL (PDO)", file: "Serie4.pdf" }
   ],
   lessons: [
     { title: "Web dynamique et environnement XAMPP", pdf: ["Chapitre1_Introduction_au_Web_dynamique.pdf", "S-rie_1.pdf"], html: `
@@ -119,7 +121,78 @@ $_SESSION["user"] = "Ali";
 // ... autre page :
 echo $_SESSION["user"];
 session_destroy();          // déconnexion</code></pre>
-<div class="call warn"><b class="t">Piège</b><code>session_start()</code> et <code>setcookie()</code> doivent être appelés <b>avant</b> toute sortie HTML ou echo, sinon : « headers already sent ».</div>` }
+<div class="call warn"><b class="t">Piège</b><code>session_start()</code> et <code>setcookie()</code> doivent être appelés <b>avant</b> toute sortie HTML ou echo, sinon : « headers already sent ».</div>` },
+    { title: "Série 4 : fichiers, sessions et MySQL avec PDO", pdf: ["Serie4.pdf", "Serie3_solution.pdf"], html: `
+<div class="call"><b class="t">Au programme de la Série 4</b>Ex. 1 : formulaire qui enregistre des étudiants dans un fichier. Ex. 2 : authentification avec sessions. Ex. 3 : CRUD sur une table MySQL avec PDO.</div>
+<h3>Ex. 1 — Formulaire et fichier texte</h3>
+<pre><code>&lt;?php
+if (isset($_POST['enregistrer'])) {
+    $nom = trim($_POST['nom'] ?? '');
+    $cne = trim($_POST['cne'] ?? '');
+    if ($nom === '' || $cne === '') {
+        echo "Champs obligatoires manquants";
+    } else {
+        $f = fopen('etudiants.txt', 'a');          // 'a' = mode ajout
+        fwrite($f, $nom . ';' . $cne . PHP_EOL);   // un étudiant par ligne
+        fclose($f);
+        echo "Étudiant enregistré";
+    }
+}
+?&gt;</code></pre>
+<ul>
+<li>Mode <b>'a'</b> : ajoute à la fin sans effacer ; <b>'w'</b> : écrase ; <b>'r'</b> : lecture.</li>
+<li>Le bouton « Réinitialiser » est un simple <code>&lt;input type="reset"&gt;</code> côté HTML.</li>
+</ul>
+<h3>Ex. 2 — Sessions : login, page protégée, déconnexion</h3>
+<pre><code>// login.php
+session_start();
+if ($_POST['login'] === 'user' &amp;&amp; $_POST['mdp'] === '1234') {
+    $_SESSION['connecte'] = true;
+    header('Location: session.php'); exit;
+}
+
+// session.php (page protégée)
+session_start();
+if (empty($_SESSION['connecte'])) { header('Location: login.php'); exit; }
+
+// deconnexion.php
+session_start();
+session_destroy();
+header('Location: login.php'); exit;</code></pre>
+<p>Toujours appeler <b>session_start()</b> avant toute sortie HTML, et <b>exit</b> après <code>header()</code>.</p>
+<h3>Ex. 3 — CRUD avec PDO</h3>
+<pre><code>-- SQL (phpMyAdmin)
+CREATE DATABASE mydbExercice3;
+CREATE TABLE etudiant (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nom VARCHAR(100),
+  email VARCHAR(100)
+);
+
+// db.php
+$pdo = new PDO('mysql:host=localhost;dbname=mydbExercice3;charset=utf8mb4',
+               'root', '', [PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION]);
+
+// create.php
+$st = $pdo-&gt;prepare('INSERT INTO etudiant (nom, email) VALUES (?, ?)');
+$st-&gt;execute([$_POST['nom'], $_POST['email']]);
+
+// index.php  (Read)
+$liste = $pdo-&gt;query('SELECT * FROM etudiant')-&gt;fetchAll(PDO::FETCH_ASSOC);
+
+// edit.php   (Update)
+$st = $pdo-&gt;prepare('UPDATE etudiant SET nom = ?, email = ? WHERE id = ?');
+$st-&gt;execute([$nom, $email, $id]);
+
+// delete.php (Delete)
+$st = $pdo-&gt;prepare('DELETE FROM etudiant WHERE id = ?');
+$st-&gt;execute([$id]);</code></pre>
+<ul>
+<li>Les <b>requêtes préparées</b> (<code>?</code> ou <code>:nom</code>) protègent contre l'injection SQL.</li>
+<li>Structure de l'application : <b>db.php</b> (connexion), <b>header.php</b> (menu Accueil / Créer), <b>index.php</b> (liste), <b>create.php</b>, <b>edit.php</b>, <b>delete.php</b> (avec confirmation).</li>
+</ul>
+<h3>Rappel Série 3 (solutions)</h3>
+<p>Factorielle avec une boucle <code>for</code> ; convertisseur DH ↔ Euro avec des fonctions et trois boutons (<code>name="action"</code> avec une valeur par bouton) ; surface du cercle avec <code>$_GET</code> ; moyennes d'étudiants avec <code>foreach</code>, <code>array_sum</code>, <code>count</code> et tri avec <code>arsort</code>.</p>` }
   ],
   quiz: [
     { q: "Où s'exécute un script PHP ?", o: ["Dans le navigateur", "Sur le serveur", "Dans la base de données", "Sur le DNS"], a: 1, e: "PHP s'exécute côté serveur ; le client reçoit du HTML." },
@@ -134,13 +207,19 @@ session_destroy();          // déconnexion</code></pre>
     { q: "Quelle fonction protège l'affichage contre les injections HTML/XSS ?", o: ["strip()", "htmlspecialchars()", "trim()", "addslashes()"], a: 1, e: "Elle convertit &lt; &gt; &amp; \" en entités HTML." },
     { q: "Où est stockée une session PHP ?", o: ["Dans le cookie entièrement", "Sur le serveur (identifiant dans un cookie)", "Dans le HTML", "Dans le DNS"], a: 1, e: "Seul l'identifiant PHPSESSID est côté client." },
     { q: "Quand appeler <code>session_start()</code> ?", o: ["N'importe quand", "Avant toute sortie HTML", "À la fin du script", "Seulement en HTML"], a: 1, e: "Sinon : erreur « headers already sent »." },
-    { q: "Quelle fonction crée un cookie ?", o: ["makecookie()", "setcookie()", "cookie()", "session_cookie()"], a: 1, e: "setcookie(nom, valeur, expiration)." }
+    { q: "Quelle fonction crée un cookie ?", o: ["makecookie()", "setcookie()", "cookie()", "session_cookie()"], a: 1, e: "setcookie(nom, valeur, expiration)." },
+    { q: "Quel mode de fopen ajoute des données à la fin d'un fichier sans l'effacer ?", o: ["'r'", "'w'", "'a'", "'x'"], a: 2, e: "'a' (append) écrit à la fin ; 'w' écrase le contenu existant." },
+    { q: "Que faut-il appeler avant d'utiliser $_SESSION ?", o: ["session_open()", "session_start()", "start_session()", "header()"], a: 1, e: "session_start() doit être appelé avant toute sortie HTML." },
+    { q: "Pourquoi utiliser des requêtes préparées avec PDO ?", o: ["Pour aller plus vite uniquement", "Pour se protéger de l'injection SQL", "Pour éviter d'ouvrir MySQL", "Pour chiffrer la base"], a: 1, e: "Les valeurs sont transmises séparément de la requête, donc non interprétées comme du SQL." },
+    { q: "Que signifie CRUD ?", o: ["Create, Read, Update, Delete", "Copy, Run, Undo, Delete", "Connect, Read, Use, Disconnect", "Create, Reset, Update, Drop"], a: 0, e: "Les quatre opérations de base sur les données : créer, lire, modifier, supprimer." }
   ],
   exercises: [
     { q: "Déclarer quatre variables de types différents et afficher leur type.", a: "<pre><code>$a = 10; $b = 3.5; $c = \"PHP\"; $d = true;\nvar_dump($a, $b, $c, $d);\necho gettype($a);</code></pre>" },
     { q: "Afficher « Admis » si la moyenne ≥ 10, sinon « Ajourné ».", a: "<pre><code>$m = 12.5;\necho ($m >= 10) ? \"Admis\" : \"Ajourné\";</code></pre>" },
     { q: "Calculer la moyenne d'un tableau de notes.", a: "<pre><code>$n = [12, 15, 9];\necho array_sum($n) / count($n);</code></pre>" },
-    { q: "Formulaire avec nom et affichage sécurisé.", a: "Formulaire <code>method=\"post\"</code> avec <code>name=\"nom\"</code>, puis <code>echo htmlspecialchars($_POST[\"nom\"]);</code> après vérification <code>isset($_POST[\"nom\"])</code>." }
+    { q: "Formulaire avec nom et affichage sécurisé.", a: "Formulaire <code>method=\"post\"</code> avec <code>name=\"nom\"</code>, puis <code>echo htmlspecialchars($_POST[\"nom\"]);</code> après vérification <code>isset($_POST[\"nom\"])</code>." },
+    { q: "Série 4, ex. 2 : comment empêcher l'accès direct à session.php sans authentification ?", a: "Au début de session.php : session_start(); if (empty($_SESSION['connecte'])) { header('Location: login.php'); exit; }. Le login.php crée $_SESSION['connecte'] = true si user / 1234 sont corrects, et deconnexion.php appelle session_destroy() puis redirige vers login.php." },
+    { q: "Série 4, ex. 3 : quelle requête SQL crée la table etudiant (id, nom, email) ?", a: "CREATE TABLE etudiant (id INT AUTO_INCREMENT PRIMARY KEY, nom VARCHAR(100), email VARCHAR(100)); dans la base mydbExercice3 (CREATE DATABASE mydbExercice3;)." }
   ],
   tips: [
     "Installe XAMPP et teste chaque exemple : PHP s'apprend en exécutant.",
@@ -159,6 +238,9 @@ session_destroy();          // déconnexion</code></pre>
     { t: "GET / POST", d: "Méthodes HTTP d'envoi de données : dans l'URL / dans le corps." },
     { t: "XSS", d: "Injection de script via des données non échappées." },
     { t: "Cookie", d: "Petite donnée stockée par le navigateur." },
-    { t: "Session", d: "Données conservées côté serveur pour un visiteur." }
+    { t: "Session", d: "Données conservées côté serveur pour un visiteur." },
+    { t: "PDO", d: "Interface PHP pour accéder à une base de données (MySQL, etc.) avec des requêtes préparées." },
+    { t: "CRUD", d: "Create, Read, Update, Delete : les quatre opérations de base sur une table." },
+    { t: "Requête préparée", d: "Requête avec paramètres (? ou :nom), exécutée avec prepare() puis execute() ; protège de l'injection SQL." }
   ]
 });

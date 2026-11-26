@@ -8,7 +8,8 @@ S3.addModule({
     { kind: "Cours", title: "3 — Classes et associations", file: "3-Classes-et-associationsJ.pdf" },
     { kind: "Cours", title: "6 — Diagrammes de séquence", file: "6-DiagrammesSequenceJ.pdf" },
     { kind: "TD/TP", title: "TD-TP 1 (2026) — Cas d'utilisation", file: "TD-TP-1-2026.pdf" },
-    { kind: "TD/TP", title: "TD-TP 2 (2026) — Diagrammes de classes", file: "TD-TP-2-2026.pdf" }
+    { kind: "TD/TP", title: "TD-TP 2 (2026) — Diagrammes de classes", file: "TD-TP-2-2026.pdf" },
+    { kind: "TD", title: "TD/TP 4 — Diagramme d'activité", file: "TD-TP-4-2026.pdf" }
   ],
   lessons: [
     { title: "Introduction à l'approche objet", pdf: ["0-CCO-IntroJ.pdf"], html: `
@@ -61,7 +62,45 @@ S3.addModule({
 <li><b>Barre d'activation</b> : rectangle sur la ligne de vie pendant l'exécution.</li>
 <li><b>Fragments combinés</b> : <code>alt</code> (choix si/sinon), <code>opt</code> (optionnel), <code>loop</code> (boucle).</li>
 </ul>
-<div class="call"><b class="t">Exemple DAB</b>Client → DAB : insérerCarte() ; DAB → Banque : vérifierCode(pin) ; fragment <code>alt</code> [code valide] : afficherMenu() / [sinon] : refuserCarte().</div>` }
+<div class="call"><b class="t">Exemple DAB</b>Client → DAB : insérerCarte() ; DAB → Banque : vérifierCode(pin) ; fragment <code>alt</code> [code valide] : afficherMenu() / [sinon] : refuserCarte().</div>` },
+    { title: "Diagrammes d'activité (vue dynamique)", pdf: ["TD-TP-4-2026.pdf"], html: `
+<div class="call"><b class="t">Idée</b>Le diagramme d'activité décrit le <b>déroulement d'un processus</b> : quelles actions, dans quel ordre, avec quels choix et quelles actions en parallèle.</div>
+<h3>Les éléments</h3>
+<table><tr><th>Élément</th><th>Rôle</th></tr>
+<tr><td>Nœud initial (disque plein)</td><td>Début du processus (un seul)</td></tr>
+<tr><td>Action (rectangle arrondi)</td><td>Une étape du traitement</td></tr>
+<tr><td>Flux de contrôle (flèche)</td><td>Ordre d'enchaînement</td></tr>
+<tr><td>Décision (losange) + gardes [ ]</td><td>Choix exclusif : une seule branche est suivie ; on utilise [else] pour le cas par défaut</td></tr>
+<tr><td>Fusion (losange)</td><td>Regroupe des branches issues d'une décision</td></tr>
+<tr><td>Fork (barre) / Join (barre)</td><td>Fork : démarre des branches <b>parallèles</b> ; Join : attend la fin de <b>toutes</b> les branches</td></tr>
+<tr><td>Nœud final d'activité (cible)</td><td>Fin de tout le processus</td></tr>
+<tr><td>Nœud d'objet</td><td>Donnée échangée entre actions (Panier, Facture PDF, Colis…)</td></tr>
+<tr><td>Partition (couloir)</td><td>Acteur ou service responsable des actions</td></tr></table>
+<h3>Décision ≠ Fork</h3>
+<ul>
+<li><b>Décision / fusion</b> : on choisit <b>une</b> branche (si / sinon).</li>
+<li><b>Fork / join</b> : on exécute <b>toutes</b> les branches en parallèle, puis on se resynchronise.</li>
+</ul>
+<h3>Exercice 1 du TD : distributeur de boissons</h3>
+<pre><code>(●) → Insérer une pièce → Vérifier la pièce → ◇
+   [pièce invalide] → Rejeter la pièce → (◉ fin)
+   [pièce valide]   → Afficher les boissons → Choisir Café ou Thé
+                    → Préparer la boisson → ━ fork ━
+                         ├─ Délivrer le gobelet ─┐
+                         └─ Rendre la monnaie ───┤
+                                              ━ join ━ → (◉ fin)</code></pre>
+<p>La distribution du gobelet et le rendu de monnaie sont <b>indépendants</b> : on les place entre un fork et un join.</p>
+<h3>Exercice 3 : commande e-commerce</h3>
+<pre><code>(●) → Valider le panier et saisir le paiement → Débiter le paiement → ◇
+   [refusé] → Annuler la commande → Envoyer l'e-mail d'échec → (◉)
+   [accepté] → Statut « En préparation » → ━ fork ━
+        ├─ Chercher les articles → Emballer le colis ─┐
+        └─ Générer la facture PDF → Envoyer la confirmation ─┤
+                                                      ━ join ━
+   → Imprimer l'étiquette d'expédition → Transmettre au transporteur → (◉)</code></pre>
+<p>Option : ajouter les nœuds d'objet Panier, Facture PDF et Colis entre les actions qui les échangent.</p>
+<h3>Exercice 2 : atelier de réparation</h3>
+<p>Pour le cas « Créer une fiche de réparation » : saisir les critères → afficher la liste des voitures → décision <b>[la voiture existe]</b> (sélectionner et afficher ses informations ; si elle est sous garantie, saisir la date de demande) ou <b>[sinon]</b> (saisir les informations du nouveau véhicule) → fusion → saisir les dates de réception et de restitution → décision <b>[dommage payé par l'assurance]</b> (afficher la liste, choisir l'assurance) → enregistrer la fiche.</p>` }
   ],
   quiz: [
     { q: "UML est…", o: ["Une méthode de développement", "Un langage de modélisation graphique", "Un langage de programmation", "Un SGBD"], a: 1, e: "UML est une notation standard, pas une méthode." },
@@ -74,12 +113,17 @@ S3.addModule({
     { q: "La relation d'héritage se lit…", o: ["« a un »", "« est un »", "« utilise »", "« contient »"], a: 1, e: "Un étudiant est un utilisateur." },
     { q: "Dans un diagramme de séquence, le temps s'écoule…", o: ["De gauche à droite", "De haut en bas", "De bas en haut", "Sans ordre"], a: 1, e: "Les lignes de vie sont verticales." },
     { q: "Quel fragment combiné représente un choix si/sinon ?", o: ["loop", "opt", "alt", "par"], a: 2, e: "alt = alternatives ; opt = un seul cas optionnel ; loop = répétition." },
-    { q: "Quand utilise-t-on une classe d'association ?", o: ["Quand le lien porte ses propres attributs", "Pour l'héritage", "Pour un acteur", "Jamais"], a: 0, e: "Exemple : Emprunt(dateEmprunt, dateRetour) entre Adhérent et Livre." }
+    { q: "Quand utilise-t-on une classe d'association ?", o: ["Quand le lien porte ses propres attributs", "Pour l'héritage", "Pour un acteur", "Jamais"], a: 0, e: "Exemple : Emprunt(dateEmprunt, dateRetour) entre Adhérent et Livre." },
+    { q: "Quel élément du diagramme d'activité lance des branches en parallèle ?", o: ["Un losange de décision", "Une barre fork", "Un nœud final", "Une partition"], a: 1, e: "Le fork démarre des flux parallèles ; le join attend qu'ils soient tous terminés." },
+    { q: "Que fait une décision (losange avec gardes) ?", o: ["Exécute toutes les branches", "Choisit une seule branche selon les gardes", "Termine le processus", "Crée un objet"], a: 1, e: "Les gardes [ ] sont exclusives : une seule branche est suivie, [else] couvre le reste." },
+    { q: "Quand un join laisse-t-il passer le flux ?", o: ["Dès qu'une branche arrive", "Quand toutes les branches sont arrivées", "Jamais", "Après une décision"], a: 1, e: "Le join est une synchronisation : il attend toutes les branches entrantes." }
   ],
   exercises: [
     { q: "Cas d'utilisation : réservation de salle. Identifier acteurs et cas.", a: "Acteurs : Utilisateur, Responsable/Administrateur. Cas : Consulter disponibilités, Réserver une salle (include S'authentifier), Annuler une réservation, Valider ou refuser (Responsable), Gérer les salles (Administrateur)." },
     { q: "Diagramme de classes : bibliothèque (adhérents, livres, emprunts).", a: "Classes : Adhérent(nom, id), Livre(titre, isbn), Emprunt(dateEmprunt, dateRetour). Adhérent 1 — 0..* Emprunt ; Emprunt 0..* — 1 Livre (ou classe d'association Emprunt entre Adhérent et Livre)." },
-    { q: "Séquence : retrait au DAB (carte valide).", a: "Client → DAB : insérerCarte ; DAB → Client : demanderCode ; Client → DAB : saisirCode ; DAB → Banque : vérifier ; Banque → DAB : ok ; Client → DAB : choisirMontant ; DAB → Banque : débiter ; DAB → Client : délivrerBillets ; DAB → Client : éjecterCarte." }
+    { q: "Séquence : retrait au DAB (carte valide).", a: "Client → DAB : insérerCarte ; DAB → Client : demanderCode ; Client → DAB : saisirCode ; DAB → Banque : vérifier ; Banque → DAB : ok ; Client → DAB : choisirMontant ; DAB → Banque : débiter ; DAB → Client : délivrerBillets ; DAB → Client : éjecterCarte." },
+    { q: "TD 4, ex. 1 : pourquoi utiliser un fork/join pour « délivrer le gobelet » et « rendre la monnaie » ?", a: "Ces deux actions sont indépendantes et peuvent se produire en parallèle. Un fork les lance ensemble, un join attend que les deux soient finies avant le nœud final." },
+    { q: "TD 4, ex. 3 : quelle partie du processus e-commerce est parallèle, et pourquoi un join avant l'étiquette ?", a: "Après paiement accepté : la logistique (chercher les articles, emballer) et la facturation (facture PDF, e-mail de confirmation) tournent en parallèle. L'étiquette d'expédition ne peut être imprimée que quand le colis est emballé ET la facture générée, d'où le join." }
   ],
   tips: [
     "Pour un diagramme de classes : souligne les noms (classes), les verbes (associations), les nombres (multiplicités).",
@@ -99,6 +143,9 @@ S3.addModule({
     { t: "Multiplicité", d: "Nombre d'instances qui peuvent participer à une association." },
     { t: "Agrégation / Composition", d: "Relations tout-parties, faible / forte (cycle de vie lié)." },
     { t: "Ligne de vie", d: "Axe vertical d'un participant dans un diagramme de séquence." },
-    { t: "Fragment combiné", d: "Bloc alt, opt ou loop qui structure un séquence." }
+    { t: "Fragment combiné", d: "Bloc alt, opt ou loop qui structure un séquence." },
+    { t: "Diagramme d'activité", d: "Diagramme UML de la vue dynamique : enchaînement d'actions, décisions et parallélisme d'un processus." },
+    { t: "Fork / Join", d: "Barres de synchronisation : fork démarre des branches parallèles, join attend qu'elles soient toutes terminées." },
+    { t: "Garde", d: "Condition entre crochets [ ] sur un flux sortant d'une décision." }
   ]
 });

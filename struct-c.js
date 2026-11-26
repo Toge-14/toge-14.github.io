@@ -14,7 +14,8 @@ S3.addModule({
     { kind: "TP", title: "Série TP N°2 — Polynômes (listes)", file: "S-rie_de_Travaux_Pratiques_N2_polynome.pdf" },
     { kind: "Correction", title: "Série TP N°2.2 — avec solution", file: "S-rie_de_Travaux_Pratiques_N2.2_avec_solution.pdf" },
     { kind: "TP", title: "Série TP N°4 — Piles", file: "Serie_TP4_Piles.pdf" },
-    { kind: "TP", title: "Série TP N°5 — Files", file: "S-rie_de_Travaux_Pratiques_N5_File.pdf" }
+    { kind: "TP", title: "Série TP N°5 — Files", file: "S-rie_de_Travaux_Pratiques_N5_File.pdf" },
+    { kind: "TP", title: "Série TP 5 — TP 1 : Manipulation des arbres binaires", file: "Serie_TP5_TP1_Manipulation_arbres.pdf" }
   ],
   lessons: [
     { title: "Rappels de C : types composés, pointeurs, malloc", pdf: ["Chapitre_Rappels_C.pdf", "TP0_Rappels_C.pdf", "Correction_TP0_Rappels_C.pdf"], html: `
@@ -176,7 +177,54 @@ typedef struct Monome { float coeff; int puiss; Polynome next; } Monome;</code><
 <li>Insérer en gardant l'ordre décroissant des puissances, puis fusionner les monômes de même puissance (additionner les coefficients).</li>
 <li>Afficher, puis effectuer des opérations sur les polynômes.</li>
 </ol>
-<div class="call"><b class="t">Méthode d'insertion triée</b>Parcours avec deux pointeurs (<code>prec</code>, <code>cour</code>) tant que <code>cour-&gt;puiss &gt; puiss</code>. Cas à gérer : insertion en tête, même puissance (on additionne), insertion au milieu ou en fin.</div>` }
+<div class="call"><b class="t">Méthode d'insertion triée</b>Parcours avec deux pointeurs (<code>prec</code>, <code>cour</code>) tant que <code>cour-&gt;puiss &gt; puiss</code>. Cas à gérer : insertion en tête, même puissance (on additionne), insertion au milieu ou en fin.</div>` },
+    { title: "Arbres binaires : manipulation élémentaire (TP 5)", pdf: ["Serie_TP5_TP1_Manipulation_arbres.pdf"], html: `
+<div class="call"><b class="t">Objectif du TP</b>Maîtriser les fonctions de base <b>estVide, filsGauche, filsDroit, estFeuille, estNoeudInterne</b> avant les algorithmes récursifs. Aucune fonction de ce TP n'est récursive.</div>
+<h3>Vocabulaire</h3>
+<ul>
+<li><b>Racine</b> : le nœud tout en haut ; <b>feuille</b> : nœud sans fils ; <b>nœud interne</b> : nœud avec au moins un fils.</li>
+<li>Chaque nœud d'un arbre binaire a au plus un <b>fils gauche</b> et un <b>fils droit</b>.</li>
+</ul>
+<h3>Déclaration en C</h3>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+typedef char Type;
+typedef struct Noeud *Arbre;
+struct Noeud {
+    Type  val;
+    Arbre g;      /* fils gauche */
+    Arbre d;      /* fils droit  */
+};
+
+Arbre creerNoeud(Type val, Arbre g, Arbre d) {
+    Arbre n = malloc(sizeof(struct Noeud));
+    n-&gt;val = val; n-&gt;g = g; n-&gt;d = d;
+    return n;
+}</code></pre>
+<p>Un <b>arbre vide</b> est représenté par <code>NULL</code>.</p>
+<h3>Les fonctions de base</h3>
+<pre><code>int   estVide(Arbre a)        { return a == NULL; }
+Arbre filsGauche(Arbre a)     { return a == NULL ? NULL : a-&gt;g; }
+Arbre filsDroit(Arbre a)      { return a == NULL ? NULL : a-&gt;d; }
+int   estFeuille(Arbre a)     { return a != NULL &amp;&amp; a-&gt;g == NULL &amp;&amp; a-&gt;d == NULL; }
+int   estNoeudInterne(Arbre a){ return a != NULL &amp;&amp; !estFeuille(a); }</code></pre>
+<ul>
+<li>Que doit retourner <code>filsGauche</code> sur un arbre vide ? Ici on retourne <b>NULL</b> pour éviter de déréférencer un pointeur nul (on peut aussi afficher une erreur).</li>
+<li><code>estFeuille(NULL)</code> vaut <b>0</b> : un arbre vide n'est pas une feuille (et pas non plus un nœud interne).</li>
+</ul>
+<h3>Construire un petit arbre (exemple)</h3>
+<pre><code>Arbre d = creerNoeud('D', NULL, NULL);
+Arbre b = creerNoeud('B', d, NULL);
+Arbre f = creerNoeud('F', NULL, NULL);
+Arbre c = creerNoeud('C', NULL, f);
+Arbre a = creerNoeud('A', b, c);          /* racine A */
+
+printf("%c\n", a-&gt;val);                    /* A */
+printf("%c\n", filsGauche(a)-&gt;val);        /* B */</code></pre>
+<p>On construit toujours <b>du bas vers le haut</b> : les fils doivent exister avant leur parent. L'arbre ci-dessus est un exemple, pas forcément la figure 1 du TP.</p>
+<h3>Modifier l'arbre (ex. 4)</h3>
+<p>Pour ajouter G comme fils gauche de F : <code>f-&gt;g = creerNoeud('G', NULL, NULL);</code>. F devient alors un nœud interne et G une nouvelle feuille. De même pour H, fils droit de D.</p>` }
   ],
   quiz: [
     { q: "Que vaut <code>sizeof(int)</code> et que fait <code>p + 1</code> si <code>p</code> est un <code>int *</code> ?", o: ["Avance d'un octet", "Avance de sizeof(int) octets", "Ajoute 1 à la valeur pointée", "Provoque une erreur"], a: 1, e: "L'arithmétique des pointeurs est exprimée en nombre d'éléments : p+1 pointe sur l'élément suivant." },
@@ -189,14 +237,19 @@ typedef struct Monome { float coeff; int puiss; Polynome next; } Monome;</code><
     { q: "On empile 5, 8 puis 3, puis on dépile une fois. Que renvoie le pop ?", o: ["5", "8", "3", "La pile est vide"], a: 2, e: "Le sommet est le dernier élément empilé : 3." },
     { q: "Quelle structure utilise-t-on pour simuler une file d'attente à un guichet ?", o: ["Une pile", "Une file", "Un arbre", "Une union"], a: 1, e: "Les clients sont servis dans l'ordre d'arrivée : FIFO." },
     { q: "Dans <code>defile</code>, que faut-il faire quand on retire le dernier élément ?", o: ["Rien de spécial", "Remettre <code>fin</code> à NULL", "Doubler la taille", "Appeler malloc"], a: 1, e: "Sinon <code>fin</code> pointerait vers un maillon libéré (pointeur pendant)." },
-    { q: "Quel outil détecte les fuites mémoire d'un programme C ?", o: ["gcc -Wall seulement", "valgrind", "make", "grep"], a: 1, e: "Le cours recommande de vérifier avec valgrind que chaque malloc a son free." }
+    { q: "Quel outil détecte les fuites mémoire d'un programme C ?", o: ["gcc -Wall seulement", "valgrind", "make", "grep"], a: 1, e: "Le cours recommande de vérifier avec valgrind que chaque malloc a son free." },
+    { q: "Que retourne estFeuille(NULL) ?", o: ["1", "0", "Une erreur", "NULL"], a: 1, e: "Un arbre vide n'est pas une feuille : estFeuille(NULL) = 0." },
+    { q: "Comment représente-t-on un arbre binaire vide en C ?", o: ["Par la valeur 0 dans le nœud", "Par le pointeur NULL", "Par un nœud sans valeur", "Par un tableau vide"], a: 1, e: "Arbre est un pointeur vers un Noeud ; l'arbre vide est NULL." },
+    { q: "Qu'est-ce qu'un nœud interne ?", o: ["Un nœud sans fils", "Un nœud avec au moins un fils", "La racine uniquement", "Un nœud NULL"], a: 1, e: "Nœud interne = non vide et non feuille." }
   ],
   exercises: [
     { q: "Écris <code>int somme(Maillon *tete)</code> qui renvoie la somme des valeurs d'une liste.", a: "<pre><code>int somme(Maillon *tete) {\n    int s = 0;\n    for (Maillon *c = tete; c != NULL; c = c-&gt;suiv) s += c-&gt;val;\n    return s;\n}</code></pre>Cas liste vide : renvoie 0." },
     { q: "Écris <code>void insererQueue(Maillon **tete, int v)</code>.", a: "<pre><code>void insererQueue(Maillon **tete, int v) {\n    Maillon *m = nouveau(v);\n    if (*tete == NULL) { *tete = m; return; }\n    Maillon *c = *tete;\n    while (c-&gt;suiv != NULL) c = c-&gt;suiv;\n    c-&gt;suiv = m;\n}</code></pre>" },
     { q: "Écris <code>void viderListe(Maillon **tete)</code> sans fuite mémoire.", a: "<pre><code>void viderListe(Maillon **tete) {\n    while (*tete != NULL) {\n        Maillon *t = *tete;\n        *tete = t-&gt;suiv;\n        free(t);\n    }\n}</code></pre>On sauvegarde toujours le suivant avant de libérer." },
     { q: "Vérifie qu'une chaîne de parenthèses est bien parenthésée avec une pile.", a: "On parcourt la chaîne : à chaque <code>(</code> on empile ; à chaque <code>)</code> on dépile. Si on dépile sur une pile vide, c'est faux. À la fin, la pile doit être vide." },
-    { q: "Écris <code>void detruit_file(File *f)</code>.", a: "<pre><code>void detruit_file(File *f) {\n    while (!est_vide(f)) defile(f);\n    free(f);\n}</code></pre>On libère tous les nœuds, puis la structure de contrôle." }
+    { q: "Écris <code>void detruit_file(File *f)</code>.", a: "<pre><code>void detruit_file(File *f) {\n    while (!est_vide(f)) defile(f);\n    free(f);\n}</code></pre>On libère tous les nœuds, puis la structure de contrôle." },
+    { q: "TP 5 : écrire creerNoeud puis ajouter le nœud G comme fils gauche de F.", a: "creerNoeud alloue un Noeud avec malloc et fixe val, g, d. Pour ajouter G : f->g = creerNoeud('G', NULL, NULL); F n'est alors plus une feuille et G est une nouvelle feuille." },
+    { q: "TP 5, ex. 3 : estFeuille et estNoeudInterne, quel comportement sur NULL ?", a: "estFeuille(a) = (a != NULL && a->g == NULL && a->d == NULL) ; estNoeudInterne(a) = (a != NULL && !estFeuille(a)). Sur NULL les deux retournent 0." }
   ],
   tips: [
     "Dessine toujours les flèches (pointeurs) sur papier avant de coder une insertion ou une suppression.",
@@ -217,6 +270,9 @@ typedef struct Monome { float coeff; int puiss; Polynome next; } Monome;</code><
     { t: "LIFO", d: "Last In, First Out : dernier entré, premier sorti (pile)." },
     { t: "FIFO", d: "First In, First Out : premier entré, premier sorti (file)." },
     { t: "Sommet", d: "Dernier élément empilé d'une pile, seul accessible." },
-    { t: "Structure de contrôle", d: "Structure qui garde les informations globales (tête, fin, taille) d'une liste, pile ou file." }
+    { t: "Structure de contrôle", d: "Structure qui garde les informations globales (tête, fin, taille) d'une liste, pile ou file." },
+    { t: "Arbre binaire", d: "Arbre dont chaque nœud a au plus un fils gauche et un fils droit." },
+    { t: "Feuille / nœud interne", d: "Feuille : nœud sans fils. Nœud interne : nœud ayant au moins un fils." },
+    { t: "Racine", d: "Nœud sans père, point d'entrée de l'arbre." }
   ]
 });
