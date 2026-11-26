@@ -15,7 +15,9 @@ S3.addModule({
     { kind: "Correction", title: "Série TP N°2.2 — avec solution", file: "S-rie_de_Travaux_Pratiques_N2.2_avec_solution.pdf" },
     { kind: "TP", title: "Série TP N°4 — Piles", file: "Serie_TP4_Piles.pdf" },
     { kind: "TP", title: "Série TP N°5 — Files", file: "S-rie_de_Travaux_Pratiques_N5_File.pdf" },
-    { kind: "TP", title: "Série TP 5 — TP 1 : Manipulation des arbres binaires", file: "Serie_TP5_TP1_Manipulation_arbres.pdf" }
+    { kind: "TP", title: "Série TP 5 — TP 1 : Manipulation des arbres binaires", file: "Serie_TP5_TP1_Manipulation_arbres.pdf" },
+    { kind: "Solution", title: "Solution TP3 — Gestion d'étudiants (liste chaînée), code C", file: "Solution_TP3_Gestion_etudiants.c" },
+    { kind: "TP", title: "TP piles (code C)", file: "TP_PILES.c" }
   ],
   lessons: [
     { title: "Rappels de C : types composés, pointeurs, malloc", pdf: ["Chapitre_Rappels_C.pdf", "TP0_Rappels_C.pdf", "Correction_TP0_Rappels_C.pdf"], html: `
@@ -220,11 +222,96 @@ Arbre f = creerNoeud('F', NULL, NULL);
 Arbre c = creerNoeud('C', NULL, f);
 Arbre a = creerNoeud('A', b, c);          /* racine A */
 
-printf("%c\n", a-&gt;val);                    /* A */
-printf("%c\n", filsGauche(a)-&gt;val);        /* B */</code></pre>
+printf("%c\\n", a-&gt;val);                    /* A */
+printf("%c\\n", filsGauche(a)-&gt;val);        /* B */</code></pre>
 <p>On construit toujours <b>du bas vers le haut</b> : les fils doivent exister avant leur parent. L'arbre ci-dessus est un exemple, pas forcément la figure 1 du TP.</p>
 <h3>Modifier l'arbre (ex. 4)</h3>
-<p>Pour ajouter G comme fils gauche de F : <code>f-&gt;g = creerNoeud('G', NULL, NULL);</code>. F devient alors un nœud interne et G une nouvelle feuille. De même pour H, fils droit de D.</p>` }
+<p>Pour ajouter G comme fils gauche de F : <code>f-&gt;g = creerNoeud('G', NULL, NULL);</code>. F devient alors un nœud interne et G une nouvelle feuille. De même pour H, fils droit de D.</p>` },
+    { title: "Codes C corrigés : gestion d'étudiants (liste) et TP piles", pdf: ["Solution_TP3_Gestion_etudiants.c", "TP_PILES.c"], html: `
+<h3>1) Solution TP3 : liste chaînée d'étudiants</h3>
+<pre><code>typedef struct etudiant {
+    char nom[21];            /* 20 caractères max + '\0' */
+    float note;
+    struct etudiant *suivant;
+} Etudiant;</code></pre>
+<p>Chaque fonction <b>retourne la (nouvelle) tête de liste</b> : c'est ce qui permet de modifier la tête sans passer un pointeur de pointeur.</p>
+<table><tr><th>Question</th><th>Fonction</th><th>Idée</th></tr>
+<tr><td>Q.1</td><td>initListe()</td><td>retourne NULL (liste vide)</td></tr>
+<tr><td>Q.2</td><td>ajouterEnTete</td><td>malloc, copie nom et note, <code>nouveau-&gt;suivant = liste</code>, retourne nouveau</td></tr>
+<tr><td>Q.3</td><td>afficherListe</td><td>parcours avec <code>courant</code> jusqu'à NULL</td></tr>
+<tr><td>Q.4</td><td>retirerEtudiant</td><td>cas particulier de la tête, sinon on s'arrête sur le prédécesseur, puis <code>free</code></td></tr>
+<tr><td>Q.5</td><td>ajouterEnFin</td><td>liste vide : retourne le nouveau ; sinon on va jusqu'au dernier</td></tr>
+<tr><td>Q.6</td><td>chercherEtudiant</td><td>parcours avec <code>strcmp</code>, retourne le nœud ou NULL</td></tr>
+<tr><td>Q.7</td><td>nombreOccurrencesNote</td><td>compteur sur <code>courant-&gt;note == note</code></td></tr>
+<tr><td>Q.8</td><td>calculerMoyenne</td><td>somme / nombre, 0 si liste vide</td></tr>
+<tr><td>Q.9</td><td>insererEtudiantTrie</td><td>insertion à sa place alphabétique (strcmp)</td></tr>
+<tr><td>Q.10</td><td>trierParInsertion</td><td>réinsère chaque élément dans une nouvelle liste triée</td></tr>
+<tr><td>Q.11</td><td>main</td><td>menu avec <code>do … while (choix != 9)</code> et <code>switch</code></td></tr></table>
+<pre><code>/* Q.4 : retirer un étudiant par son nom */
+Etudiant* retirerEtudiant(Etudiant* liste, char nom[]) {
+    if (liste == NULL) return NULL;
+    if (strcmp(liste-&gt;nom, nom) == 0) {        /* c'est la tête */
+        Etudiant* temp = liste;
+        liste = liste-&gt;suivant;
+        free(temp);
+        return liste;
+    }
+    Etudiant* courant = liste;
+    while (courant-&gt;suivant != NULL &amp;&amp; strcmp(courant-&gt;suivant-&gt;nom, nom) != 0)
+        courant = courant-&gt;suivant;
+    if (courant-&gt;suivant != NULL) {            /* trouvé : on le saute */
+        Etudiant* temp = courant-&gt;suivant;
+        courant-&gt;suivant = temp-&gt;suivant;
+        free(temp);
+    }
+    return liste;
+}
+
+/* Q.9 : insertion dans une liste triée par nom */
+Etudiant* insererEtudiantTrie(Etudiant* liste, char nom[], float note) {
+    Etudiant* nouveau = malloc(sizeof(Etudiant));
+    strcpy(nouveau-&gt;nom, nom); nouveau-&gt;note = note;
+    if (liste == NULL || strcmp(nom, liste-&gt;nom) &lt; 0) {
+        nouveau-&gt;suivant = liste;
+        return nouveau;
+    }
+    Etudiant* courant = liste;
+    while (courant-&gt;suivant != NULL &amp;&amp; strcmp(nom, courant-&gt;suivant-&gt;nom) &gt; 0)
+        courant = courant-&gt;suivant;
+    nouveau-&gt;suivant = courant-&gt;suivant;
+    courant-&gt;suivant = nouveau;
+    return liste;
+}</code></pre>
+<ul>
+<li>Pour comparer des chaînes on utilise <b>strcmp</b> (0 si égales), jamais <code>==</code> ; pour copier, <b>strcpy</b>.</li>
+<li>Le tri par insertion appelle <code>insererEtudiantTrie</code> pour chaque élément : complexité O(n²).</li>
+</ul>
+<h3>2) TP piles : pile chaînée avec compteur de taille</h3>
+<pre><code>typedef struct Element { int valeur; struct Element *suivant; } Element;
+typedef struct { int taille; Element *sommet; } Pile;
+
+void initPile(Pile *p) { p-&gt;taille = 0; p-&gt;sommet = NULL; }
+int  vide(Pile *p)     { return p-&gt;taille == 0; }
+
+void empiler(Pile *p, int val) {
+    Element *n = malloc(sizeof(Element));
+    if (n == NULL) { printf("Erreur d'allocation mémoire.\\n"); return; }
+    n-&gt;valeur = val; n-&gt;suivant = p-&gt;sommet;   /* le nouveau pointe vers l'ancien sommet */
+    p-&gt;sommet = n; p-&gt;taille++;
+}
+void depiler(Pile *p) {
+    if (vide(p)) { printf("Pile vide, rien à dépiler.\\n"); return; }
+    Element *t = p-&gt;sommet;
+    p-&gt;sommet = p-&gt;sommet-&gt;suivant;
+    free(t); p-&gt;taille--;
+}
+int sommet(Pile *p) {
+    if (vide(p)) { printf("Pile vide, pas de sommet.\\n"); return -1; }
+    return p-&gt;sommet-&gt;valeur;
+}</code></pre>
+<p>Contrairement au cours, la pile est ici une <b>structure</b> qui contient le pointeur de sommet <b>et la taille</b> ; on passe son adresse <code>&amp;p</code> aux fonctions, donc plus besoin de retourner la nouvelle tête.</p>
+<h3>Trace du main (à savoir faire à la main)</h3>
+<p>On empile 10, 20, 30, 40, 50, 60. Sommet = <b>60</b>, taille = <b>6</b>. Un <code>depiler</code> : sommet = <b>50</b>, taille = <b>5</b>. La boucle <code>while (!vide(&amp;p) &amp;&amp; i &lt;= 3)</code> dépile 3 fois (50, 40, 30) et affiche <code>1 : depiler</code>, <code>2 : depiler</code>, <code>3 : depiler</code>. Il reste 10 et 20 : nouveau sommet = <b>20</b>, et « Pile vide ? » affiche <b>Non</b>.</p>` }
   ],
   quiz: [
     { q: "Que vaut <code>sizeof(int)</code> et que fait <code>p + 1</code> si <code>p</code> est un <code>int *</code> ?", o: ["Avance d'un octet", "Avance de sizeof(int) octets", "Ajoute 1 à la valeur pointée", "Provoque une erreur"], a: 1, e: "L'arithmétique des pointeurs est exprimée en nombre d'éléments : p+1 pointe sur l'élément suivant." },
@@ -240,7 +327,10 @@ printf("%c\n", filsGauche(a)-&gt;val);        /* B */</code></pre>
     { q: "Quel outil détecte les fuites mémoire d'un programme C ?", o: ["gcc -Wall seulement", "valgrind", "make", "grep"], a: 1, e: "Le cours recommande de vérifier avec valgrind que chaque malloc a son free." },
     { q: "Que retourne estFeuille(NULL) ?", o: ["1", "0", "Une erreur", "NULL"], a: 1, e: "Un arbre vide n'est pas une feuille : estFeuille(NULL) = 0." },
     { q: "Comment représente-t-on un arbre binaire vide en C ?", o: ["Par la valeur 0 dans le nœud", "Par le pointeur NULL", "Par un nœud sans valeur", "Par un tableau vide"], a: 1, e: "Arbre est un pointeur vers un Noeud ; l'arbre vide est NULL." },
-    { q: "Qu'est-ce qu'un nœud interne ?", o: ["Un nœud sans fils", "Un nœud avec au moins un fils", "La racine uniquement", "Un nœud NULL"], a: 1, e: "Nœud interne = non vide et non feuille." }
+    { q: "Qu'est-ce qu'un nœud interne ?", o: ["Un nœud sans fils", "Un nœud avec au moins un fils", "La racine uniquement", "Un nœud NULL"], a: 1, e: "Nœud interne = non vide et non feuille." },
+    { q: "Dans le TP piles, que valent le sommet et la taille après avoir empilé 10, 20, 30, 40, 50, 60 puis dépilé une fois ?", o: ["Sommet 60, taille 6", "Sommet 50, taille 5", "Sommet 10, taille 1", "Sommet 40, taille 4"], a: 1, e: "On retire le 60 : le sommet devient 50 et la taille passe de 6 à 5." },
+    { q: "Pourquoi les fonctions de la liste d'étudiants retournent-elles un Etudiant* ?", o: ["Pour afficher la liste", "Pour renvoyer la nouvelle tête de liste", "Pour libérer la mémoire", "Pour trier"], a: 1, e: "La tête peut changer (ajout en tête, retrait de la tête) ; l'appelant fait liste = fonction(liste, ...)." },
+    { q: "Comment compare-t-on deux chaînes de caractères en C ?", o: ["a == b", "strcmp(a, b) == 0", "strcpy(a, b)", "a.equals(b)"], a: 1, e: "== compare les adresses ; strcmp compare les caractères et retourne 0 si les chaînes sont égales." }
   ],
   exercises: [
     { q: "Écris <code>int somme(Maillon *tete)</code> qui renvoie la somme des valeurs d'une liste.", a: "<pre><code>int somme(Maillon *tete) {\n    int s = 0;\n    for (Maillon *c = tete; c != NULL; c = c-&gt;suiv) s += c-&gt;val;\n    return s;\n}</code></pre>Cas liste vide : renvoie 0." },

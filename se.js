@@ -16,7 +16,9 @@ S3.addModule({
     { kind: "TP", title: "TP 2 — Partie II (version 2)", file: "TP2-Part_II_1_.pdf" },
     { kind: "TP", title: "TP 2 — Partie III", file: "TP2-Part_III.pdf" },
     { kind: "TP", title: "TP 3 — Partie III", file: "TP3-Part_III.pdf" },
-    { kind: "Projet", title: "Projet Unix 2018/2019", file: "Projet_Unix_2018_2019.pdf" }
+    { kind: "Projet", title: "Projet Unix 2018/2019", file: "Projet_Unix_2018_2019.pdf" },
+    { kind: "TP", title: "TP 3 — Scripts shell, exercices 1 à 5 (photo)", file: "IMG_4208.jpeg.png" },
+    { kind: "TP", title: "TP 3 — Scripts shell, exercices 6 à 9 (photo)", file: "IMG_4209.jpeg.png" }
   ],
   lessons: [
     { title: "Architecture d'Unix et arborescence", pdf: ["SE-Part_I.pdf"], html: `
@@ -111,7 +113,124 @@ for f in *.txt
 do
   echo "Fichier : $f"
 done</code></pre>
-<div class="call"><b class="t">Astuce</b>Une boucle <code>until</code> répète jusqu'à ce que la condition soit vraie (inverse de while). <code>break</code> et <code>continue</code> contrôlent la boucle.</div>` }
+<div class="call"><b class="t">Astuce</b>Une boucle <code>until</code> répète jusqu'à ce que la condition soit vraie (inverse de while). <code>break</code> et <code>continue</code> contrôlent la boucle.</div>` },
+    { title: "TP 3 : scripts shell (exercices 1 à 9, corrigés)", pdf: ["IMG_4208.jpeg.png", "IMG_4209.jpeg.png"], html: `
+<div class="call"><b class="t">Source</b>Énoncés lus sur les deux photos du TP 3 (Scripts en Shell Unix sh). Les corrigés ci-dessous sont des propositions : vérifie-les dans ton terminal.</div>
+<h3>Ex. 1 — Premiers scripts</h3>
+<pre><code>#!/bin/sh
+# 1) date du jour, puis les utilisateurs connectés
+date
+who
+
+# 2) demander le nom
+echo "Quel est votre nom ?"
+read nom
+echo "Bonjour $nom, votre dossier personnel contient :"
+ls $HOME</code></pre>
+<h3>Ex. 2 — Interactivité (echo et read)</h3>
+<pre><code>echo "Cher utilisateur quel est votre nom ?"
+read nom
+echo "Ravi de vous connaitre, $nom"
+echo "Quel est votre prénom et votre âge ?"
+read prenom age
+echo "Vous avez $age ans $prenom $nom"</code></pre>
+<h3>Ex. 3 — Arguments</h3>
+<pre><code>echo "$# arguments :"
+i=1
+for a in "$@"
+do
+   echo " $i - $a"
+   i=$((i+1))
+done</code></pre>
+<p><b>$#</b> : nombre d'arguments ; <b>$@</b> : tous les arguments ; <b>$1, $2…</b> : chaque argument.</p>
+<h3>Ex. 4 — Opérations</h3>
+<pre><code># 1) somme de deux chiffres
+if [ $# -ne 2 ]; then echo "Usage : $0 a b"; exit 1; fi
+echo $(($1 + $2))
+
+# 2) nombre de caractères d'une chaîne
+echo -n "$1" | wc -c               # nombre de caractères (ou, en sh moderne : la longueur avec # devant le nom du paramètre)</code></pre>
+<h3>Ex. 5 — test et instruction conditionnelle</h3>
+<pre><code>echo "Nom du fichier :"
+read f
+if [ -f "$f" ]; then
+    cat "$f"                    # fichier ordinaire : afficher le contenu
+elif [ -d "$f" ]; then
+    ls "$f"                     # répertoire : lister (ou cd "$f")
+else
+    echo "$f n'existe pas"
+fi</code></pre>
+<h3>Ex. 6 — L'instruction case</h3>
+<pre><code>echo "Voulez-vous supprimer le fichier $1 ? "
+read rep
+case $rep in
+   oui|Oui|OUI|O) echo "Votre fichier est supprimé" ; rm "$1" ;;
+   non|NON|N|n)   echo "Votre fichier n'a pas été supprimé" ;;
+   *)             echo "Réponse incorrecte" ;;
+esac</code></pre>
+<h3>Ex. 7 — while et until</h3>
+<pre><code># 1) mot de passe "ubuntu", 4 essais (version while)
+essai=1
+read mdp
+while [ "$mdp" != "ubuntu" -a $essai -lt 4 ]
+do
+    essai=$((essai+1))
+    echo "Mot de passe incorrect, réessayez :"
+    read mdp
+done
+[ "$mdp" = "ubuntu" ] &amp;&amp; echo "Accès autorisé" || echo "Accès refusé"
+
+# version until : même idée avec la condition inversée
+until [ "$mdp" = "ubuntu" -o $essai -ge 4 ]
+do ... done
+
+# 2) minutes en secondes, avec test de l'argument
+if [ $# -ne 1 ]; then echo "Donnez les minutes en argument"; exit 1; fi
+echo "$1 minutes = $(($1 * 60)) secondes"</code></pre>
+<h3>Ex. 8 — La boucle for</h3>
+<pre><code># 1) compter de 1 à 10
+for i in 1 2 3 4 5 6 7 8 9 10
+do echo $i ; done
+
+# 2) type de chaque fichier de un ou plusieurs répertoires
+for rep in "$@"
+do
+  for f in $rep/*
+  do
+    if   [ -d "$f" ]; then echo "$f : répertoire"
+    elif [ -f "$f" ]; then echo "$f : fichier ordinaire"
+    elif [ -b "$f" ]; then echo "$f : mode bloc"
+    elif [ -c "$f" ]; then echo "$f : mode caractère"
+    fi
+  done
+done
+
+# 3) chaînes (paramètres) présentes dans les fichiers d'un répertoire (boucles imbriquées)
+rep=$1 ; shift
+for chaine in "$@"
+do
+  for f in $rep/*
+  do
+    grep -q "$chaine" "$f" &amp;&amp; echo "$chaine apparaît dans $f"
+  done
+done</code></pre>
+<h3>Ex. 9 — while et redirection des entrées/sorties</h3>
+<pre><code># 1) numéroter les lignes d'un fichier
+n=0
+while read ligne
+do
+   n=$((n+1))
+   echo "$n $ligne"
+done &lt; "$1"
+
+# 2) fichier de clients : nom prénom age
+n=0
+while read nom prenom age
+do
+   n=$((n+1))
+   echo "Le client numéro $n est agé de $age et appelé $prenom $nom"
+done &lt; "$1"</code></pre>
+<p><b>done &lt; fichier</b> redirige l'entrée de toute la boucle : à chaque tour, <code>read</code> lit une ligne de plus.</p>` }
   ],
   quiz: [
     { q: "Quel composant gère processus, mémoire et fichiers ?", o: ["Le shell", "Le noyau", "L'interface graphique", "Le compilateur"], a: 1, e: "Le noyau (kernel) est au cœur du système." },
@@ -126,7 +245,10 @@ done</code></pre>
     { q: "Comment tester si deux nombres sont égaux ?", o: ["[ $a = $b ]", "[ $a -eq $b ]", "[ $a == b ]", "if a=b"], a: 1, e: "-eq pour les nombres, = pour les chaînes." },
     { q: "Quel test vérifie qu'un fichier est un répertoire ?", o: ["-f", "-d", "-e", "-x"], a: 1, e: "-d directory ; -f fichier ordinaire ; -e existe." },
     { q: "Quelle ligne rend un script exécutable ?", o: ["chmod +x script.sh", "run script.sh", "exec -x script.sh", "chown script.sh"], a: 0, e: "chmod +x ajoute le droit d'exécution." },
-    { q: "Dans un <code>case</code>, que signifie <code>*)</code> ?", o: ["Premier cas", "Cas par défaut", "Erreur", "Commentaire"], a: 1, e: "* correspond à toute valeur non traitée avant." }
+    { q: "Dans un <code>case</code>, que signifie <code>*)</code> ?", o: ["Premier cas", "Cas par défaut", "Erreur", "Commentaire"], a: 1, e: "* correspond à toute valeur non traitée avant." },
+    { q: "Que contient $# dans un script shell ?", o: ["Le nom du script", "Le nombre d'arguments", "Le code de retour", "Le PID"], a: 1, e: "$# = nombre d'arguments, $@ = tous les arguments, $0 = nom du script." },
+    { q: "Comment lire un fichier ligne par ligne dans un script ?", o: ["for l in fichier", "while read ligne ; do ... done < fichier", "cat fichier > read", "read fichier"], a: 1, e: "La redirection done < fichier alimente read à chaque tour de boucle." },
+    { q: "Quel test vérifie qu'un nom désigne un répertoire ?", o: ["[ -f nom ]", "[ -d nom ]", "[ -c nom ]", "[ -b nom ]"], a: 1, e: "-f : fichier ordinaire, -d : répertoire, -b : mode bloc, -c : mode caractère." }
   ],
   exercises: [
     { q: "Écrire un script qui affiche le nombre d'arguments et le premier.", a: "<pre><code>#!/bin/bash\necho \"Nombre : $#\"\necho \"Premier : $1\"</code></pre>" },

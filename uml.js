@@ -9,7 +9,11 @@ S3.addModule({
     { kind: "Cours", title: "6 — Diagrammes de séquence", file: "6-DiagrammesSequenceJ.pdf" },
     { kind: "TD/TP", title: "TD-TP 1 (2026) — Cas d'utilisation", file: "TD-TP-1-2026.pdf" },
     { kind: "TD/TP", title: "TD-TP 2 (2026) — Diagrammes de classes", file: "TD-TP-2-2026.pdf" },
-    { kind: "TD", title: "TD/TP 4 — Diagramme d'activité", file: "TD-TP-4-2026.pdf" }
+    { kind: "TD", title: "TD/TP 4 — Diagramme d'activité", file: "TD-TP-4-2026.pdf" },
+    { kind: "TP", title: "TP 1, ex. 1 — Cas d'utilisation : gestion d'établissement scolaire (image)", file: "EX1TP1.png" },
+    { kind: "TP", title: "TP 1, ex. 2 — Cas d'utilisation : vente dans un magasin (image)", file: "EX2TP1.png" },
+    { kind: "TP", title: "TP 2, ex. 2 — Classes : bibliothèque (image)", file: "EX2TP2.png" },
+    { kind: "TP", title: "TP 2, ex. 3 — Classes : collège, département, personnes (image)", file: "EX3TP2.png" }
   ],
   lessons: [
     { title: "Introduction à l'approche objet", pdf: ["0-CCO-IntroJ.pdf"], html: `
@@ -100,7 +104,43 @@ S3.addModule({
    → Imprimer l'étiquette d'expédition → Transmettre au transporteur → (◉)</code></pre>
 <p>Option : ajouter les nœuds d'objet Panier, Facture PDF et Colis entre les actions qui les échangent.</p>
 <h3>Exercice 2 : atelier de réparation</h3>
-<p>Pour le cas « Créer une fiche de réparation » : saisir les critères → afficher la liste des voitures → décision <b>[la voiture existe]</b> (sélectionner et afficher ses informations ; si elle est sous garantie, saisir la date de demande) ou <b>[sinon]</b> (saisir les informations du nouveau véhicule) → fusion → saisir les dates de réception et de restitution → décision <b>[dommage payé par l'assurance]</b> (afficher la liste, choisir l'assurance) → enregistrer la fiche.</p>` }
+<p>Pour le cas « Créer une fiche de réparation » : saisir les critères → afficher la liste des voitures → décision <b>[la voiture existe]</b> (sélectionner et afficher ses informations ; si elle est sous garantie, saisir la date de demande) ou <b>[sinon]</b> (saisir les informations du nouveau véhicule) → fusion → saisir les dates de réception et de restitution → décision <b>[dommage payé par l'assurance]</b> (afficher la liste, choisir l'assurance) → enregistrer la fiche.</p>` },
+    { title: "Corrigés des TP en images : cas d'utilisation et classes", pdf: ["EX1TP1.png", "EX2TP1.png", "EX2TP2.png", "EX3TP2.png"], html: `
+<div class="call"><b class="t">Source</b>Ce sont les quatre schémas du dossier (EX1TP1, EX2TP1, EX2TP2, EX3TP2). Je les ai lus à l'écran : vérifie les détails sur les images, surtout le sens exact des flèches.</div>
+<h3>TP 1, ex. 1 — Système de gestion d'établissement scolaire (cas d'utilisation)</h3>
+<ul>
+<li><b>Acteurs et généralisation</b> : « Tout le monde » ← « Enseignants » ← « Enseignant responsable ». Chaque acteur hérite des cas d'utilisation de celui qui est au-dessus.</li>
+<li><b>Tout le monde</b> : Consulter le planning des salles.</li>
+<li><b>Enseignants</b> : Récapitulatif horaire d'enseignants ; <b>Effectuer des réservations</b>.</li>
+<li>« Effectuer des réservations » est <b>spécialisé</b> en Réservation d'une salle et Réservation du matériel pédagogique ; ce dernier est lui-même spécialisé en Vidéo projecteur et Ordinateur portable.</li>
+<li>« Effectuer des réservations » <b>&lt;&lt;include&gt;&gt;</b> « Vérification de la disponibilité » (obligatoire à chaque réservation).</li>
+<li><b>Enseignant responsable</b> : Éditer le récapitulatif pour l'ensemble de la formation.</li>
+</ul>
+<h3>TP 1, ex. 2 — Processus de vente dans un magasin (cas d'utilisation)</h3>
+<ul>
+<li><b>Acteurs</b> : Client, Vendeur et Caisse (système externe, représenté par un rectangle).</li>
+<li>Le client lance « Passer dans les rayons (Prospecter) » ; « Essayer des articles » et « Demande de renseignement » (avec le vendeur) l'<b>étendent</b> (&lt;&lt;extend&gt;&gt;) : cas optionnels.</li>
+<li>« Prendre un article » <b>inclut</b> « Vérifier le stock » et « Régler achats » (&lt;&lt;include&gt;&gt;).</li>
+<li>« Bénéficier d'une réduction » <b>étend</b> « Régler achats » (optionnel).</li>
+<li>« Régler achats » est <b>généralisé</b> par Par carte, Espèce, Par chèque ; l'acteur Caisse y est associé.</li>
+</ul>
+<div class="call"><b class="t">À retenir</b><b>include</b> = toujours exécuté, la flèche va du cas de base vers le cas inclus. <b>extend</b> = optionnel, la flèche va du cas qui étend vers le cas de base. <b>Généralisation</b> = flèche à triangle vide vers le cas ou l'acteur général.</div>
+<h3>TP 2, ex. 2 — Bibliothèque (diagramme de classes)</h3>
+<ul>
+<li><b>Bibliothèque</b> (AjouterAdherent, AjouterDocument, EnleverAdherent) est liée par <b>agrégation</b> (losange vide) à <b>Documents</b> (1..*) et à <b>adhérent</b> (1..*).</li>
+<li><b>Documents</b> (titre) est généralisé en <b>Journaux</b> (dateparution) et <b>Volumes</b> (auteur ; getauteur(), getTitre()).</li>
+<li><b>Volumes</b> est généralisé en <b>Dictionnaires</b> (iddict), <b>BD</b> (dessinateur) et <b>Livres</b> (disponible ; empruntable()).</li>
+<li><b>adhérent</b> (nom, prénom ; EmprunterLivre(), RendreLivre()) emprunte de <b>1 à 3</b> Livres ; l'association « emprunter » porte une <b>classe d'association</b> <b>Emprunte</b> (dateEmprunte, dateRestitution ; prolongerDateRestitution()).</li>
+</ul>
+<h3>TP 2, ex. 3 — Collège, département, personnes (diagramme de classes)</h3>
+<ul>
+<li><b>Collège</b> (CodeCollège, Nom, AdresseSite ; get()) est lié à <b>Département</b> (codeDepartement, Nom ; CalculerMoyenneGeneral()) par une <b>composition</b> (losange plein) : un département n'existe pas sans son collège.</li>
+<li>Département <b>regroupe</b> (agrégation) 1..* <b>Personne</b> (Tel, Email, Nom, NoPersonne, Prénom ; ImprimerFicheSignalétique()).</li>
+<li><b>Enseignant</b> (DatePriseFonction, Indice) et <b>Etudiant</b> (AnnéeEntrée) <b>héritent</b> de Personne.</li>
+<li>Un enseignant est <b>chef de département</b> (association 1 — 1..*, {ordered}).</li>
+<li><b>Enseignant</b> « Enseigner » <b>Matière</b> (Nocours, LibelléCours ; CalculerMoyenne()) ; la <b>Salle-de-cours</b> est associée à la Matière.</li>
+<li><b>Etudiant</b> « Suivre » Matière (rôles Role1 / Role2), avec la classe d'association <b>Notes</b> (NoteM).</li>
+</ul>` }
   ],
   quiz: [
     { q: "UML est…", o: ["Une méthode de développement", "Un langage de modélisation graphique", "Un langage de programmation", "Un SGBD"], a: 1, e: "UML est une notation standard, pas une méthode." },
@@ -123,7 +163,10 @@ S3.addModule({
     { q: "Diagramme de classes : bibliothèque (adhérents, livres, emprunts).", a: "Classes : Adhérent(nom, id), Livre(titre, isbn), Emprunt(dateEmprunt, dateRetour). Adhérent 1 — 0..* Emprunt ; Emprunt 0..* — 1 Livre (ou classe d'association Emprunt entre Adhérent et Livre)." },
     { q: "Séquence : retrait au DAB (carte valide).", a: "Client → DAB : insérerCarte ; DAB → Client : demanderCode ; Client → DAB : saisirCode ; DAB → Banque : vérifier ; Banque → DAB : ok ; Client → DAB : choisirMontant ; DAB → Banque : débiter ; DAB → Client : délivrerBillets ; DAB → Client : éjecterCarte." },
     { q: "TD 4, ex. 1 : pourquoi utiliser un fork/join pour « délivrer le gobelet » et « rendre la monnaie » ?", a: "Ces deux actions sont indépendantes et peuvent se produire en parallèle. Un fork les lance ensemble, un join attend que les deux soient finies avant le nœud final." },
-    { q: "TD 4, ex. 3 : quelle partie du processus e-commerce est parallèle, et pourquoi un join avant l'étiquette ?", a: "Après paiement accepté : la logistique (chercher les articles, emballer) et la facturation (facture PDF, e-mail de confirmation) tournent en parallèle. L'étiquette d'expédition ne peut être imprimée que quand le colis est emballé ET la facture générée, d'où le join." }
+    { q: "TD 4, ex. 3 : quelle partie du processus e-commerce est parallèle, et pourquoi un join avant l'étiquette ?", a: "Après paiement accepté : la logistique (chercher les articles, emballer) et la facturation (facture PDF, e-mail de confirmation) tournent en parallèle. L'étiquette d'expédition ne peut être imprimée que quand le colis est emballé ET la facture générée, d'où le join." },
+    { q: "Quelle est la différence entre include et extend sur le schéma du magasin ?", a: "include : « Prendre un article » inclut toujours « Vérifier le stock » et « Régler achats » (le comportement inclus est obligatoire). extend : « Essayer des articles », « Demande de renseignement » et « Bénéficier d'une réduction » ne se produisent que dans certains cas, donc ils étendent le cas de base." },
+    { q: "Dans le schéma de la bibliothèque, pourquoi Emprunte est-elle une classe d'association ?", a: "Les dates d'emprunt et de restitution n'appartiennent ni à l'adhérent ni au livre mais à la relation entre les deux. La classe d'association Emprunte (dateEmprunte, dateRestitution, prolongerDateRestitution()) porte ces informations. La cardinalité 1..3 indique qu'un adhérent peut emprunter de 1 à 3 livres." },
+    { q: "Dans le schéma du collège, quelle est la différence entre le lien Collège–Département et le lien Département–Personne ?", a: "Collège–Département est une composition (losange plein) : les départements disparaissent avec le collège. Département–Personne est une agrégation (losange vide) : les personnes existent indépendamment du département qui les regroupe." }
   ],
   tips: [
     "Pour un diagramme de classes : souligne les noms (classes), les verbes (associations), les nombres (multiplicités).",
